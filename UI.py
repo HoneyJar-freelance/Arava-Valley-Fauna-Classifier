@@ -1,16 +1,20 @@
 import PySimpleGUI as sg
 from tkinter import filedialog as fd
 
-WIN_DIMENSIONS = (100,50)
-VERSION = "V.4.0"
+WIN_DIMENSIONS = (100,50) #dimensions of GUI
+VERSION = "V.4.0" #version of software
 #Home window
-def loadUI():
+def loadGUI():
+    '''
+    Loads the main GUI.
+    Returns: Tuple(Boolean|None, str, str)
+    '''
     img_dir = ''
     csv_file = ''
     #displays the following features
     layout = [[sg.Text("Please select an option:")], 
             [sg.Button("Generate Predictions")], 
-            [sg.Button("Retrain System")]]
+            [sg.Button("Retrain Model")]]
     
     # Create the window with a title
     window = sg.Window(title = f"MIQPC23 {VERSION}: Home", layout = layout, margins = WIN_DIMENSIONS)
@@ -67,7 +71,7 @@ def get_img_dir():
     window.close() #closes the window
     #if goBack is true, go back to loadUI()
     if(goBack):
-        return loadUI()
+        return loadGUI()
     return img_dir
 
 #UI for getting csv file with classes and image names. Only called for retraining purposes
@@ -96,5 +100,8 @@ def get_csv_file():
             break
     window.close()
     if(goBack):
-        return loadUI()
+        return loadGUI()
     return csv_file
+
+def load_dependency_not_found_prompt(): #TODO: implement; should inform user of error, and ask for training file
+    pass
