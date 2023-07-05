@@ -92,7 +92,7 @@ def get_csv_file():
             goBack = True
             break
         elif event == "Browse Files":
-            csv_file = fd.askopenfilename() #TODO: verify that this returns JUST the file name, NOT the opened file
+            csv_file = fd.askopenfilename(filetypes=(('.csv')))
             break
     window.close()
     if(goBack):
