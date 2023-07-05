@@ -2,19 +2,21 @@ import PySimpleGUI as sg
 from tkinter import filedialog as fd
 
 WIN_DIMENSIONS = (100,50)
+VERSION = "V.4.0"
 #Home window
 def loadUI():
-    pathname = ""
+    img_dir = ''
+    csv_file = ''
     #displays the following features
     layout = [[sg.Text("Please select an option:")], 
             [sg.Button("Generate Predictions")], 
             [sg.Button("Retrain System")]]
     
     # Create the window with a title
-    window = sg.Window(title = "MIQPC23 V.3.1: Home", layout = layout, margins = WIN_DIMENSIONS)
+    window = sg.Window(title = f"MIQPC23 {VERSION}: Home", layout = layout, margins = WIN_DIMENSIONS)
 
     # Create an event loop
-    isTraining = None  #None: we clicked [X]; True: we clicked "Retrain System"; False: we clicked "Generate Predictions"
+    retrain_model = None  #None: we clicked [X]; True: we clicked "Retrain System"; False: we clicked "Generate Predictions"
     while True:
         event, values = window.read()
         #if the window is closed, stop the program
@@ -22,29 +24,30 @@ def loadUI():
             break
         #if we chose generate predictions, load the next window (browse files UI)
         elif event == "Generate Predictions":
-            isTraining = 0
+            retrain_model = False
             window.close()
-            pathname = browseFilesUI()
+            img_dir = get_img_dir()
             break
         #if we chose retrain system, load the next window (retrain AI)
         elif event == "Retrain System":
-            isTraining = 1
+            retrain_model = True
             window.close()
-            pathname = retrainAI()
+            img_dir = get_img_dir()
+            csv_file = get_csv_file()
             break
     window.close() #closes the window
-    return(isTraining, pathname)
+    return(retrain_model, img_dir, csv_file)
     
 
 #UI for generating predictions
-def browseFilesUI():
-    pathname = "" #path to folder
+def get_img_dir():
+    img_dir = "" #path to images
     layout = [[sg.Text("Please choose the folder with photos to analyze:")], 
             [sg.Button("Browse Folders")], 
             [sg.Button("CANCEL")]]
 
     #Create the window
-    window = sg.Window("MIQPC23 V.3.1: Predictions", layout)
+    window = sg.Window(f"MIQPC23 {VERSION}: Select a directory", layout)
 
     #Create an event loop
     goBack = False     #did we click cancel?
@@ -59,23 +62,23 @@ def browseFilesUI():
             break
         #if we click "Browse Folders", set pathname to the selected folder    
         elif event == "Browse Folders":
-            pathname = fd.askdirectory()
+            img_dir = fd.askdirectory()
             break
     window.close() #closes the window
     #if goBack is true, go back to loadUI()
     if(goBack):
         return loadUI()
-    return pathname
+    return img_dir
 
-#UI for retraining the AI
-def retrainAI():
-    pathname = ""
-    layout = [[sg.Text("Please select a directory that contains both the images to train on, and the Timelapse generated CSV:")], 
+#UI for getting csv file with classes and image names. Only called for retraining purposes
+def get_csv_file():
+    csv_file = ""
+    layout = [[sg.Text("Please select a CSV file that contains the image names and labels of its contents:")], 
             [sg.Button("Browse Files")], 
             [sg.Button("CANCEL")]]
     
     #Create the window
-    window = sg.Window("MIQPC23 V.3.1: Retraining", layout)
+    window = sg.Window(f"MIQPC23 {VERSION}: CSV Selection", layout)
 
     #Create an event loop
     goBack = False
@@ -85,13 +88,13 @@ def retrainAI():
         # presses the OK button
         if  event == sg.WIN_CLOSED:
             break
-        elif event == "Generate Predictions":
-            isTraining = True
-            break
         elif event == "CANCEL":
             goBack = True
+            break
+        elif event == "Browse Files":
+            csv_file = fd.askopenfilename() #TODO: verify that this returns JUST the file name, NOT the opened file
             break
     window.close()
     if(goBack):
         return loadUI()
-    return pathname
+    return csv_file
