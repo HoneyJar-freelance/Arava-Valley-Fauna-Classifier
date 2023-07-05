@@ -3,6 +3,7 @@ from tkinter import filedialog as fd
 
 WIN_DIMENSIONS = (100,50) #dimensions of GUI
 VERSION = "V.4.0" #version of software
+
 #Home window
 def loadGUI():
     '''
@@ -42,9 +43,11 @@ def loadGUI():
     window.close() #closes the window
     return(retrain_model, img_dir, csv_file)
     
-
-#UI for generating predictions
 def get_img_dir():
+    '''
+    Prompts the user for a directory of images.
+    Returns: str of a directory path
+    '''
     img_dir = "" #path to images
     layout = [[sg.Text("Please choose the folder with photos to analyze:")], 
             [sg.Button("Browse Folders")], 
@@ -76,6 +79,10 @@ def get_img_dir():
 
 #UI for getting csv file with classes and image names. Only called for retraining purposes
 def get_csv_file():
+    '''
+    Gets the file path to a CSV with important information for training.
+    Returns: str of a file path.
+    '''
     csv_file = ""
     layout = [[sg.Text("Please select a CSV file that contains the image names and labels of its contents:")], 
             [sg.Button("Browse Files")], 
@@ -103,5 +110,55 @@ def get_csv_file():
         return loadGUI()
     return csv_file
 
-def load_dependency_not_found_prompt(): #TODO: implement; should inform user of error, and ask for training file
-    pass
+def load_dependency_not_found_prompt():
+    '''
+    Informs the user that files are missing, and how to fix the issue.
+    Returns: Tuple(str,str) | None
+    '''
+
+    train_files = None
+
+    layout = [[sg.Text(f"Warning: important file(s) are missing.")],
+              [sg.Text("You can either contact the developer or retrain a fresh model to generate all required files, or close the application.")],
+              [sg.Button("Train new model")],
+              [sg.Button("Exit")]]
+    
+    window = sg.Window(f"MIQPC23 {VERSION}: DependenciesNotFoundException", layout) #TODO: move this process to an exception handler
+    
+    #Create an event loop
+    while True:
+        event, values = window.read()
+        # End program if user closes window or
+        # presses the OK button
+        if  event == sg.WIN_CLOSED:
+            break
+        elif event == "Exit":
+            break
+        elif event == "Train new model":
+            #Dont call other functions, as they will return to loadGUI
+            train_files = (fd.askdirectory(),fd.askopenfilename(filetypes=(('.csv'))))
+    window.close()
+
+    return train_files
+
+def give_error(msg:str):
+    '''
+    Notifies the user about an unknown error.
+    '''
+    layout = [[sg.Text(f"Unknown Error: Something went wrong.")],
+              [sg.Text(msg)],
+              [sg.Button("Exit")]]
+    
+    window = sg.Window(f"MIQPC23 {VERSION}: ERROR", layout) #TODO: move this process to an exception handler
+    
+    #Create an event loop
+    while True:
+        event, values = window.read()
+        # End program if user closes window or
+        # presses the OK button
+        if  event == sg.WIN_CLOSED:
+            break
+        elif event == "Exit":
+            break
+    window.close()
+    
