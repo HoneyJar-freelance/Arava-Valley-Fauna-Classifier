@@ -1,3 +1,4 @@
 #Files ignored by git
 *.jpg
 .vs/
+__pycache__/

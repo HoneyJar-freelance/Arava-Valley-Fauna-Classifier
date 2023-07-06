@@ -161,4 +161,5 @@ def give_error(msg:str):
         elif event == "Exit":
             break
     window.close()
+    return msg
     
