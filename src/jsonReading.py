@@ -19,3 +19,6 @@ def getCount(mainDIR):
             counts.append(count) #add the final count to counts
         jsonFile.close()
     return counts
+
+
+print(sys.path)
