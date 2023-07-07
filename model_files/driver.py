@@ -32,12 +32,26 @@ def dependency_files_exist():
 
 if __name__ == '__main__':
     #globals:
-    SAVED_MODEL_NAME = 'vgg16Run.h5'
-    SAVED_CLASSES_NAME = 'classes.txt'
+    SAVED_MODEL_NAME = 'AVFC_model.keras'
+    SAVED_CLASSES_NAME = 'classes.json'
+
+    HYPERPARAMETERS = { #includes loss function for convenience
+        'batch_size':32,
+        'num_epochs':15,
+        'val_split':0.3,
+        'steps_per_epoch':None,
+        'val_steps':None,
+        'optimizer':'adagrad',
+        'dense_units':1024,
+        'dense_activation_0':'selu',
+        'dense_activation_1':'relu',
+
+        'loss':'sparse_categorical_crossentropy',
+    }
 
     #Load UI and determine what needs to be done
-    retrain_model, img_directory, csv_file = ui.loadUI() #gets a tuple of a (boolean, dir_path, filename)
-
+    retrain_model, img_dir, csv_file = ui.loadUI() #gets a tuple of a (boolean, dir_path, filename)
+    
     if(not dependency_files_exist()): #model and/or class names cannot be found
         #train model
         images_dir, csv_file = ui.load_dependency_not_found_prompt() #TODO: implement; should inform user of error, and ask for training file
@@ -54,5 +68,5 @@ if __name__ == '__main__':
         #TODO: call model.run(img_directory)
         pass
     else:
-        ui.give_error('Unable to process request.',f'retrain_model: {retrain_model}, img_directory: {img_directory}, csv_file: {csv_file}')
+        ui.give_error('Unable to process request.',f'retrain_model: {retrain_model}, img_directory: {img_dir}, csv_file: {csv_file}')
         #TODO: ui should notify user of an error
