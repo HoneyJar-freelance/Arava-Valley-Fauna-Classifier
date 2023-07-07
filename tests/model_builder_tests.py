@@ -15,6 +15,9 @@ class ConstructModelTesting(unittest.TestCase):
 
         with open('tests/model_json_dump.json','w') as jf:
             jf.writelines(json.dumps(test_model.get_config(),indent=4))
+    
+    def test_extract_classes_file_DNE(self): #ensures that 0 is returned when no file is found
+        self.assertFalse(construct_model.extract_classes())
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

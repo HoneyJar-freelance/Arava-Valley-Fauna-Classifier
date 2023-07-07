@@ -1,6 +1,8 @@
 from keras.applications import VGG16
 from keras import Sequential
 from keras.layers import Flatten, Dense
+from os import path
+import json
 
 def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     '''
@@ -34,3 +36,28 @@ def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
                 metrics = ['accuracy']) #uses MSE
     
     return model
+
+def extract_classes():
+    '''
+    Extracts the classes from classes.json if it exists.
+    Returns: dict instance | 0
+    '''
+    try: 
+        with open('../model_files/classes.json', 'r') as classes:
+            return json.load(classes)
+    except:
+        return 0
+
+
+def get_new_classes(current_classes=None):
+    classes = {}
+    if(current_classes is not None):
+        classes = current_classes
+    
+    next_entry = len(classes)
+    for label in get_labels():
+        if classes.get(label) is None:
+            classes[label] = next_entry
+            next_entry += 1
+    
+    return classes
