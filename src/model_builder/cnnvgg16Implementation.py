@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 from keras.models import load_model
 import os
-from PIL import Image
 from PIL.ExifTags import TAGS
 
 cnn = load_model('vgg16Run.h5') #loads the saved model

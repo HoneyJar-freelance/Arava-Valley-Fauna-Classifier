@@ -1,6 +1,6 @@
 import UI as ui
-import src.model_files.cnnvgg16Implementation as cnn
-import jsonReading as jr
+import src.model_builder.cnnvgg16Implementation as cnn
+import src.jsonReading as jr
 from os.path import isfile
 
 CUTOFF = 0.3

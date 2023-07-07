@@ -1,0 +1,22 @@
+[build-system]
+requires = [""]
+build-backend = "" #TODO#
+
+[project]
+name = "model_builder_HoneyJar-0"
+version = "2.0"
+authors = [
+  { name="Jacob Reiss", email="jacobtreiss1@gmail.com" },
+]
+description = "Package of functions to assemble, build, and train a CNN for animal classification"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: ", #TODO#
+    "Operating System :: Windows",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/HoneyJar-freelance/Arava-Valley-Fauna-Classifier"
+"Bug Tracker" = "https://github.com/HoneyJar-freelance/Arava-Valley-Fauna-Classifier/issues"
