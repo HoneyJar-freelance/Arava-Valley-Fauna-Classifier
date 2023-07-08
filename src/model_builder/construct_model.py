@@ -41,9 +41,9 @@ def extract_classes():
     '''
     Extracts the classes from classes.json if it exists.
     Returns: dict instance | 0
-    '''
-    try: 
-        with open('../model_files/classes.json', 'r') as classes:
+    ''' 
+    try:
+        with open('src/model_files/classes.json', 'r') as classes:
             return json.load(classes)
     except:
         return 0

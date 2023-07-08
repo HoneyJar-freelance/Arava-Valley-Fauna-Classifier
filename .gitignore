@@ -3,3 +3,4 @@
 .vs/
 __pycache__/
 tests/model_json_dump.json
+.vscode/
