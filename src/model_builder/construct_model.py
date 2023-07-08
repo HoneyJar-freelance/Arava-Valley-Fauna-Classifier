@@ -40,7 +40,8 @@ def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
 
 def extract_classes(location):
     '''
-    Extracts the classes from classes.json if it exists.
+    Extracts the classes from a file if it exists.
+    location: filepath + name of file we are opening
     Returns: dict instance | 0
     ''' 
     try:
@@ -51,19 +52,31 @@ def extract_classes(location):
 
 
 def get_new_classes(csvfile, current_classes=None):
-    classes = {}
+    '''
+    Extracts potential new classes from a csv file
+    csvfile: filepath to csv file with images and labels
+    current_classes: dict of currently registered classes. Is None if they do not exist
+    returns: dict instance
+    '''
+    classes = {} #empty dict to use
+    #if we have pre-existing classes, set classes to point to them
     if(current_classes is not None):
         classes = current_classes
     
-    next_entry = len(classes)
+    next_entry = len(classes) #len indexes starting at 1, not 0. Thus, next_entry = last value + 1
     for label in get_labels(csvfile):
-        if classes.get(label) is None:
-            classes[label] = next_entry
+        if classes.get(label) is None: #if the class doesnt exist
+            classes[label] = next_entry #add it to the dictionary with the corresponding int encoding
             next_entry += 1
     
     return classes
 
-def get_labels(csvfile):
+def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a csv here!
+   '''
+   Extracts the labels column from a csv
+   csvfile: filepath to csv file with images and labels
+   Returns: list of labels (duplicates included)
+   '''
    csvfile =  pd.read_csv(csvfile)
    new_classes = csvfile.loc[:,'Animal'].to_list()
    return new_classes
