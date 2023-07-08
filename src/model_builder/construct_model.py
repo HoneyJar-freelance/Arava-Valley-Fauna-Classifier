@@ -38,13 +38,13 @@ def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     
     return model
 
-def extract_classes():
+def extract_classes(location):
     '''
     Extracts the classes from classes.json if it exists.
     Returns: dict instance | 0
     ''' 
     try:
-        with open('src/model_files/classes.json', 'r') as classes:
+        with open(location, 'r') as classes:
             return json.load(classes)
     except:
         return 0

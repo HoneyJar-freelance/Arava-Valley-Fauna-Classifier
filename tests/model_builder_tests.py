@@ -22,22 +22,22 @@ class ConstructModelTesting(unittest.TestCase):
         self.assertListEqual(answers, construct_model.get_labels('tests/test_csv.csv'))
     
     def test_extract_classes_file_DNE(self): #ensures that 0 is returned when no file is found
-        self.assertFalse(construct_model.extract_classes())
+        self.assertFalse(construct_model.extract_classes('tests/test.json'))
 
     def test_extract_classes_file_exists(self):
-        tmp_file = open('src/model_files/classes.json', 'x') #WARNING: remove classes.json from here when sending to production
+        tmp_file = open('tests/test.json', 'x')
         tmp_file.write('{"beans":1}')
         tmp_file.close()
-        is_dict = type(construct_model.extract_classes()) == type(dict())
-        os.remove('src/model_files/classes.json')
+        is_dict = type(construct_model.extract_classes('tests/test.json')) == type(dict())
+        os.remove('tests/test.json')
         self.assertTrue(is_dict)
     
     def test_extract_classes_file_gets_correct_dict(self):
-        tmp_file = open('src/model_files/classes.json', 'x') #WARNING: remove classes.json from here when sending to production
+        tmp_file = open('tests/test.json', 'x')
         tmp_file.write('{"beans":1}')
         tmp_file.close()
-        is_correct_dict = construct_model.extract_classes()['beans'] == 1
-        os.remove('src/model_files/classes.json')
+        is_correct_dict = construct_model.extract_classes('tests/test.json')['beans'] == 1
+        os.remove('tests/test.json')
         self.assertTrue(is_correct_dict)
     
     def test_get_new_classes_no_prexisting(self):
@@ -89,8 +89,4 @@ class ConstructModelTesting(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    try:
-        os.remove('src/model_files/classes.json') #WARNING: remove before production
-    except:
-        pass
     unittest.main(verbosity=2)
