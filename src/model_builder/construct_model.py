@@ -1,8 +1,9 @@
 from keras.applications import VGG16
 from keras import Sequential
 from keras.layers import Flatten, Dense
-from os import path
+from os import path, rename, remove
 import json
+import pandas as pd
 
 def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     '''
@@ -49,15 +50,36 @@ def extract_classes():
         return 0
 
 
-def get_new_classes(current_classes=None):
+def get_new_classes(csvfile, current_classes=None):
     classes = {}
     if(current_classes is not None):
         classes = current_classes
     
     next_entry = len(classes)
-    for label in get_labels():
+    for label in get_labels(csvfile):
         if classes.get(label) is None:
             classes[label] = next_entry
             next_entry += 1
     
     return classes
+
+def get_labels(csvfile):
+   csvfile =  pd.read_csv(csvfile)
+   new_classes = csvfile.loc[:,'Animal'].to_list()
+   return new_classes
+
+def save_classes(classes, location):
+    '''
+    Saves a dictionary of classes to a json file, and backs up the old file
+    classes: dict object of classes
+    location: file path + file name to save the json file at. Will also be appended with '.OLD' to backup old file
+    '''
+    if(path.exists(f'{location}.OLD')): #checks to see if we have an old
+        remove(f'{location}.OLD') #if so, remove it for the next one
+    try:
+        rename(location, f'{location}.OLD') #if json.old existed, its gone now.
+    except: #Thus, the only error that can arise is that there is no current class file
+        pass #we dont need to do anything
+    finally: #always save
+        with open(location, 'w') as fp:
+            json.dump(obj=classes, fp=fp)
