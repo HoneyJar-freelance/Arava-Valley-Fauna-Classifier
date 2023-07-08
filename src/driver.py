@@ -1,5 +1,5 @@
 import UI as ui
-import src.model_builder.cnnvgg16Implementation as cnn
+import model_builder.cnnvgg16Implementation as cnn
 import src.jsonReading as jr
 from os.path import isfile
 
