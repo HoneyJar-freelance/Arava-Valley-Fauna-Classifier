@@ -1,5 +1,4 @@
 from tensorflow import keras
-from keras.utils import image_dataset_from_directory
 from construct_model import get_labels, extract_classes
 
 def get_data(link, classes_file, batch_size, val_split=None, csvfile=None):
@@ -15,7 +14,7 @@ def get_data(link, classes_file, batch_size, val_split=None, csvfile=None):
     if(csvfile is not None): #then we are generating predictions
         labels = get_labels(csvfile)
     try: #checks if link is a directory
-        dataset = image_dataset_from_directory(directory=link,
+        dataset = keras.utils.image_dataset_from_directory(directory=link,
                                                labels=labels,
                                                label_mode='int', #we want integer encoding
                                                class_names=extract_classes(classes_file),
