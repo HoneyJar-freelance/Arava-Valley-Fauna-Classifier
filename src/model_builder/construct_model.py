@@ -88,6 +88,9 @@ def save_classes(classes, location):
         with open(location, 'w') as fp:
             json.dump(obj=classes, fp=fp)
 
+def save_model(model, location):
+    pass
+
 def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a csv here!
    '''
    Extracts the labels column from a csv
@@ -105,5 +108,19 @@ def load_model(model_name, classes_file):
     '''
     return (models.load_model(model_name), extract_classes(classes_file))
 
-def train_model(model:models.Model, classes:dict, dataset:tf.data.Dataset):
+def train_model(model:models.Model, classes:dict, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, validation_steps:int|None):
+    es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if validation loss doesn't improve after 3 epochs
+    
+    hist = model.fit(x = dataset[0],                        #the training data
+                     steps_per_epoch = steps_per_epoch,     #None defaults to the number of batches
+                     epochs = epochs,                       #performed best in experimentation
+                     callbacks = es1,                       #Tells the model to monitor es1; in this case, monitor val_loss with patience of 3
+                     validation_data = dataset[1],          #the validation data
+                     validation_steps = validation_steps,   #None defaults to the number of batches
+                     verbose = 1)                           #1 shows progress bar. Helps gauge how much is done
+    
+    save_model()
+    pass
+
+def visualize_performance():
     pass
