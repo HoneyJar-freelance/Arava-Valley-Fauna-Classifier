@@ -136,7 +136,7 @@ def load_dependency_not_found_prompt():
             break
         elif event == "Train new model":
             #Dont call other functions, as they will return to loadGUI
-            train_files = (fd.askdirectory(),fd.askopenfilename(filetypes=(('.csv'))))
+            train_files = (fd.askdirectory(), fd.askopenfilename(filetypes=(('.csv'))))
     window.close()
 
     return train_files
