@@ -1,5 +1,5 @@
 from keras.applications import VGG16
-from keras import Sequential
+from keras import Sequential, models
 from keras.layers import Flatten, Dense
 from os import path, rename, remove
 import json
@@ -96,3 +96,9 @@ def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a
    csvfile =  pd.read_csv(csvfile)
    new_classes = csvfile.loc[:,'Animal'].to_list()
    return new_classes
+
+def load_model(model_name, classes_file):
+    return (models.load_model(model_name), extract_classes(classes_file))
+
+def train_model():
+    pass

@@ -43,10 +43,13 @@ def preprocess(dataset:tf.data.Dataset|list[tf.data.Dataset]):
     Returns: Modified Dataset object
     '''
     if(type(dataset) == list): #we passed in both a training and validation subset, so process both
-        dataset = [preprocess(dataset[0]), preprocess(dataset[1])]
+        dataset = [preprocess(dataset[0]), preprocess(dataset[1])] #both = [Dataset, Dataset]
         return dataset if (dataset[0] and dataset[1]) is not None else 0
     try:
         dataset = dataset.map(lambda x: tf.image.grayscale_to_rgb(x/255)) #divide by 255 to normalize, then rgb the images
         return dataset
     except:
         return None
+
+def visualize_data(): #TODO: #14 implement this code
+    pass
