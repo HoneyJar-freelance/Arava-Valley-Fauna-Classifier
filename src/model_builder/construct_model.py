@@ -4,6 +4,7 @@ from keras.layers import Flatten, Dense
 from os import path, rename, remove
 import json
 import pandas as pd
+import tensorflow as tf
 
 def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     '''
@@ -98,7 +99,11 @@ def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a
    return new_classes
 
 def load_model(model_name, classes_file):
+    '''
+    Loads the model and its classes as a dict.
+    Returns: tuple(keras.models.Model, dict{classes})
+    '''
     return (models.load_model(model_name), extract_classes(classes_file))
 
-def train_model():
+def train_model(model:models.Model, classes:dict, dataset:tf.data.Dataset):
     pass
