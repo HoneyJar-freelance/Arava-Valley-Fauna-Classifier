@@ -1,5 +1,6 @@
 from tensorflow import keras
 from construct_model import get_labels, extract_classes
+from ReissLib.PickyPixels import image_verification as iv
 
 def get_data(link, classes_file, batch_size, val_split=None, csvfile=None):
     '''
@@ -10,6 +11,10 @@ def get_data(link, classes_file, batch_size, val_split=None, csvfile=None):
     val_split: percentage of dataset to be saved for validation
     csvfile: path to csv file with labels
     '''
+
+    #prune any corrupted images to avoid any issues
+    iv.detect_unopenable(link)
+
     labels = None
     if(csvfile is not None): #then we are generating predictions
         labels = get_labels(csvfile)
