@@ -2,7 +2,6 @@ from tensorflow import keras
 import tensorflow as tf
 from model_builder.construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
-from matplotlib import pyplot as plt
 
 def get_data(link, classes_file, batch_size, val_split=None, csvfile=None):
     '''

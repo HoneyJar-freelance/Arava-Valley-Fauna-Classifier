@@ -71,16 +71,6 @@ def get_new_classes(csvfile, current_classes=None):
     
     return classes
 
-def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a csv here!
-   '''
-   Extracts the labels column from a csv
-   csvfile: filepath to csv file with images and labels
-   Returns: list of labels (duplicates included)
-   '''
-   csvfile =  pd.read_csv(csvfile)
-   new_classes = csvfile.loc[:,'Animal'].to_list()
-   return new_classes
-
 def save_classes(classes, location):
     '''
     Saves a dictionary of classes to a json file, and backs up the old file
@@ -96,3 +86,13 @@ def save_classes(classes, location):
     finally: #always save
         with open(location, 'w') as fp:
             json.dump(obj=classes, fp=fp)
+
+def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a csv here!
+   '''
+   Extracts the labels column from a csv
+   csvfile: filepath to csv file with images and labels
+   Returns: list of labels (duplicates included)
+   '''
+   csvfile =  pd.read_csv(csvfile)
+   new_classes = csvfile.loc[:,'Animal'].to_list()
+   return new_classes
