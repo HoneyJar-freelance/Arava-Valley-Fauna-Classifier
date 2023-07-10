@@ -89,7 +89,20 @@ def save_classes(classes, location):
         with open(location, 'w') as fp:
             json.dump(obj=classes, fp=fp)
 
-def save_model(model, location):
+def save_model(model:tf.keras.models.Model, location:str):
+    '''
+    Saves the model as a .h5 file.
+    model: tf.keras.models.Model instance
+    location: file path + file name to save the model file at. Will also be appended with '.OLD' to backup old file
+    '''
+    if(path.exists(f'{location}.OLD')): #checks to see if we have an old
+        remove(f'{location}.OLD') #if so, remove it for the next one
+    try:
+        rename(location, f'{location}.OLD') #if .old existed, its gone now.
+    except: #Thus, the only error that can arise is that there is no current class file
+        pass #we dont need to do anything
+    finally: #always save
+        model.save(f'{location}')
     pass
 
 def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a csv here!
