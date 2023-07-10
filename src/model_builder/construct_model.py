@@ -1,9 +1,11 @@
 from keras.applications import VGG16
-from keras import Sequential
+from keras import Sequential, models
 from keras.layers import Flatten, Dense
 from os import path, rename, remove
 import json
 import pandas as pd
+import tensorflow as tf
+from matplotlib import pyplot as plt
 
 def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     '''
@@ -87,6 +89,22 @@ def save_classes(classes, location):
         with open(location, 'w') as fp:
             json.dump(obj=classes, fp=fp)
 
+def save_model(model:tf.keras.models.Model, location:str):
+    '''
+    Saves the model as a .h5 file.
+    model: tf.keras.models.Model instance
+    location: file path + file name to save the model file at. Will also be appended with '.OLD' to backup old file
+    '''
+    if(path.exists(f'{location}.OLD')): #checks to see if we have an old
+        remove(f'{location}.OLD') #if so, remove it for the next one
+    try:
+        rename(location, f'{location}.OLD') #if .old existed, its gone now.
+    except: #Thus, the only error that can arise is that there is no current class file
+        pass #we dont need to do anything
+    finally: #always save
+        model.save(f'{location}')
+    pass
+
 def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a csv here!
    '''
    Extracts the labels column from a csv
@@ -96,3 +114,47 @@ def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a
    csvfile =  pd.read_csv(csvfile)
    new_classes = csvfile.loc[:,'Animal'].to_list()
    return new_classes
+
+def load_model(model_name, classes_file):
+    '''
+    Loads the model and its classes as a dict.
+    Returns: tuple(keras.models.Model, dict{classes})
+    '''
+    return (models.load_model(model_name), extract_classes(classes_file))
+
+def train_model(model:models.Model, classes:dict, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, validation_steps:int|None):
+    es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if validation loss doesn't improve after 3 epochs
+    
+    hist = model.fit(x = dataset[0],                        #the training data
+                     steps_per_epoch = steps_per_epoch,     #None defaults to the number of batches
+                     epochs = epochs,                       #performed best in experimentation
+                     callbacks = es1,                       #Tells the model to monitor es1; in this case, monitor val_loss with patience of 3
+                     validation_data = dataset[1],          #the validation data
+                     validation_steps = validation_steps,   #None defaults to the number of batches
+                     verbose = 1)                           #1 shows progress bar. Helps gauge how much is done
+    
+    save_model()
+    return hist
+
+def visualize_performance(hist):
+    '''
+    Creates charts displaying the model's accuracy and loss metrics.
+    hist: the result of running model.fit()
+    '''
+    #The following code creates a graph of the accuracy of the model
+    plt.title('AVFC Model Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.plot(hist.history['accuracy'])
+    plt.plot(hist.history['val_accuracy'])
+    plt.legend(['Accuracy', 'Validation Accuracy'])
+    plt.show()
+
+    #The following code creates a graph of the loss of the model
+    plt.title('AVFC Model Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.plot(hist.history['loss'])
+    plt.plot(hist.history['val_loss'])
+    plt.legend(['Loss', 'Validation loss'])
+    plt.show()

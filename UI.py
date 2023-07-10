@@ -2,7 +2,7 @@ import PySimpleGUI as sg
 from tkinter import filedialog as fd
 
 WIN_DIMENSIONS = (100,50) #dimensions of GUI
-VERSION = "V.4.0" #version of software
+VERSION = "V.2.0" #version of software
 
 #Home window
 def loadGUI():
@@ -123,7 +123,7 @@ def load_dependency_not_found_prompt():
               [sg.Button("Train new model")],
               [sg.Button("Exit")]]
     
-    window = sg.Window(f"MIQPC23 {VERSION}: DependenciesNotFoundException", layout) #TODO: move this process to an exception handler
+    window = sg.Window(f"MIQPC23 {VERSION}: ModelNotFoundError", layout) #TODO: move this process to an exception handler
     
     #Create an event loop
     while True:
@@ -136,7 +136,7 @@ def load_dependency_not_found_prompt():
             break
         elif event == "Train new model":
             #Dont call other functions, as they will return to loadGUI
-            train_files = (fd.askdirectory(),fd.askopenfilename(filetypes=(('.csv'))))
+            train_files = (fd.askdirectory(), fd.askopenfilename(filetypes=(('.csv'))))
     window.close()
 
     return train_files
