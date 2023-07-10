@@ -5,6 +5,7 @@ from os import path, rename, remove
 import json
 import pandas as pd
 import tensorflow as tf
+from matplotlib import pyplot as plt
 
 def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     '''
@@ -120,7 +121,27 @@ def train_model(model:models.Model, classes:dict, dataset:tf.data.Dataset, steps
                      verbose = 1)                           #1 shows progress bar. Helps gauge how much is done
     
     save_model()
-    pass
+    return hist
 
-def visualize_performance():
-    pass
+def visualize_performance(hist):
+    '''
+    Creates charts displaying the model's accuracy and loss metrics.
+    hist: the result of running model.fit()
+    '''
+    #The following code creates a graph of the accuracy of the model
+    plt.title('AVFC Model Accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.plot(hist.history['accuracy'])
+    plt.plot(hist.history['val_accuracy'])
+    plt.legend(['Accuracy', 'Validation Accuracy'])
+    plt.show()
+
+    #The following code creates a graph of the loss of the model
+    plt.title('AVFC Model Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.plot(hist.history['loss'])
+    plt.plot(hist.history['val_loss'])
+    plt.legend(['Loss', 'Validation loss'])
+    plt.show()
