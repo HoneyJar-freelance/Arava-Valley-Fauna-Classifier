@@ -1,14 +1,28 @@
-import numpy as np
+from model_builder import construct_dataset
 import tensorflow as tf
-from keras.models import load_model
-import os
-from PIL.ExifTags import TAGS
+from tensorflow import keras
+import numpy as np
 
-def predict():
+def predict(data_dir:str, classes_file:str, batch_size:int, model:keras.models.Model):
     '''
     Generates predictions on a specified dataset.
+    data_dir: directory path storing all the images to be processed
+    classes_file: file path to where the dictionary of classes is stored
+    batch_size: int representing how many images are in a batch
+    model: CNN model generating the predictions
+
+    Returns: numpy array of predictions [[classification_int, probability]]
     '''
-    pass
+    dataset = construct_dataset.get_data(link=data_dir, classes_file=classes_file, batch_size=None)
+    predictions = None
+    try:
+        predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1, use_multiprocessing=True) #try to use multiprocessing if possible
+    except:
+         predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1) #if you cant, dont
+
+    return predictions
+
+
 
 def create_csv():
     '''

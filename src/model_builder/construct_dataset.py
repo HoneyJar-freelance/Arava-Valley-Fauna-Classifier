@@ -3,7 +3,7 @@ import tensorflow as tf
 from model_builder.construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
 
-def get_data(link, classes_file, batch_size, val_split=None, csvfile=None):
+def get_data(link:str, classes_file:str, batch_size:int|None, val_split=float|None, csvfile=str|None):
     '''
     Creates a dataset of images to either be trained on or labeled
     link: directory/dropbox link to data
