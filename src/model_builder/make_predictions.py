@@ -22,12 +22,34 @@ def predict(data_dir:str, classes_file:str, batch_size:int, model:keras.models.M
 
     return predictions
 
+def map_predictions_to_class(classes_file:str, predictions:np.ndarray):
+    '''
+    Decodes the integer encoding of each prediction matching the class dict.
+    classes_file: file path to classes file
+    predictions: numpy array(s) of predictions
+    Returns: list(tuple) of decoded predictions. [(class, probability), ...]
+    '''
+    classes = construct_dataset.extract_classes(classes_file)
+    predictions_decoded = []
+    for predict in predictions:
+        encoded_animal = np.argmax(predict) #gets the integer corresponding to the highest probability
+        confidence_val = np.max(predict)    #gets the probability of said integer
 
+        #decodes integer encoding
+        decoded_animal = list(classes)[list(classes.values()).index(encoded_animal)]
+        predictions_decoded.append((decoded_animal, confidence_val))
+    
+    return predictions_decoded
 
-def create_csv():
+def create_csv(img_dir:str, predictions:list[tuple]):
+    CUTOFF = 2 #TODO: move to driver.py
     '''
     Creates a CSV file to be imported into TimeLapse.
     '''
+    with open(f'{img_dir}/labeled_data.csv','w') as fp:
+        fp.write('File,RelativePath,Animal,Count\n')
+        for prediction in predictions:
+            pass
     pass
 
 def record_predictions(predictions, destination):
