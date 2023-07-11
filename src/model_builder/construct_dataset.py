@@ -35,7 +35,7 @@ def get_data(link:str, batch_size, val_split, csvfile):
         return None
 
     #prune any corrupted images to avoid any issues
-    iv.detect_unopenable(link)
+    iv.detect_unopenable(link) #TODO: #18 bug report: labels are not removed with its respective image
 
     labels = None
     if(csvfile is not None): #then we are generating predictions

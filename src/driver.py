@@ -53,5 +53,8 @@ if __name__ == '__main__':
             model = construct_model.construct(DENSE_ACTIVATION_0, DENSE_ACTIVATION_1, OPTIMIZER, len(classes))
             print('Model assembled...')
             dataset = construct_dataset.get_data(link=img_dir,batch_size=BATCH_SIZE,val_split=VAL_SPLIT, csvfile=csv_file)
-            print('Training and validation datasets obtained. Beginning training...\n==============================\n')
-            construct_model.train_model(model=model,epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, dataset=dataset,steps_per_epoch=STEPS_PER_EPOCH, validation_steps=VALIDATION_STEPS)
+            if(not dataset):
+                print('ERROR: Something has gone wrong. Please try again.')
+            else:
+                print('Training and validation datasets obtained. Beginning training...\n==============================\n')
+                construct_model.train_model(model=model,epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, dataset=dataset,steps_per_epoch=STEPS_PER_EPOCH, validation_steps=VALIDATION_STEPS)
