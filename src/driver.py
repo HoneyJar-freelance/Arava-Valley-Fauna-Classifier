@@ -38,7 +38,7 @@ if __name__ == '__main__':
         #we need to retrain model.
         if(retrain_model):
             classes = construct_model.get_new_classes(csv_file, classes) #update classes if we need to
-            hist = construct_model.train_model(model=model, classes=classes, dataset=dataset, steps_per_epoch=STEPS_PER_EPOCH, epochs=NUM_EPOCHS, validation_steps=VALIDATION_STEPS)
+            hist = construct_model.train_model(model=model, dataset=dataset, steps_per_epoch=STEPS_PER_EPOCH, epochs=NUM_EPOCHS, validation_steps=VALIDATION_STEPS)
             construct_model.visualize_performance(hist) #For developer's sake.
         else: #we are making predictions
              construct_model.predict()
@@ -52,6 +52,6 @@ if __name__ == '__main__':
             print('Classes extracted...')
             model = construct_model.construct(DENSE_ACTIVATION_0, DENSE_ACTIVATION_1, OPTIMIZER, len(classes))
             print('Model assembled...')
-            dataset = construct_dataset.get_data(link=img_dir,classes=classes,batch_size=BATCH_SIZE,val_split=VAL_SPLIT, csvfile=csv_file)
+            dataset = construct_dataset.get_data(link=img_dir,batch_size=BATCH_SIZE,val_split=VAL_SPLIT, csvfile=csv_file)
             print('Training and validation datasets obtained. Beginning training...\n==============================\n')
             construct_model.train_model(model=model,epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, dataset=dataset,steps_per_epoch=STEPS_PER_EPOCH, validation_steps=VALIDATION_STEPS)
