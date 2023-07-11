@@ -10,28 +10,25 @@ def predict(data_dir:str, classes:dict, batch_size:int, model:keras.models.Model
     '''
     Generates predictions on a specified dataset.
     data_dir: directory path storing all the images to be processed
-    classes_file: file path to where the dictionary of classes is stored
+    classes: dict instance of classes
     batch_size: int representing how many images are in a batch
     model: CNN model generating the predictions
-
-    Returns: numpy array of predictions [[classification_int, probability]]
     '''
     for root, dirs, files in walk(data_dir):
         for folder in dirs:
             filenames = filter(filter_imgs, files) #files in current directory
             
             if(len(filenames)): #if there are image files
-                dataset = construct_dataset.get_data(link=data_dir, classes_file=classes_file, batch_size=None)
+                dataset = construct_dataset.get_data(link=data_dir, classes_file=classes, batch_size=batch_size)
                 predictions = None
 
-                try:
-                    predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1, use_multiprocessing=True) #try to use multiprocessing if possible
-                except:
+                try: #attempt to use multi-processing
+                    predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1, use_multiprocessing=True)
+                except: #since corrupted images were removed, this should only run if multi-processing doesnt work
                     predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1) #if you cant, dont
 
-                predictions = map_predictions_to_class(classes)
-
-    return predictions
+                predictions = map_predictions_to_class(classes) #decode predictions
+                create_csv(filenames=filenames, relative_path=folder, predictions=predictions) #create csv file
     
 
 def filter_imgs(filename:str):
@@ -272,8 +269,3 @@ def runModel(mainDIR):
                                         mainDIR,
                                         relPathImages[i]))
     return(listOfPredictions)
-
-
-for root, dirs, files in walk('tests'):
-    for folder in dirs:
-        print(folder, files)
