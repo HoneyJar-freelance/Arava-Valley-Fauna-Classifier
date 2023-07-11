@@ -1,10 +1,12 @@
+import sys
+sys.path.append('src')
 from model_builder import construct_dataset
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
 from os import walk
 
-def predict(data_dir:str, classes_file:str, batch_size:int, model:keras.models.Model):
+def predict(data_dir:str, classes:dict, batch_size:int, model:keras.models.Model):
     '''
     Generates predictions on a specified dataset.
     data_dir: directory path storing all the images to be processed
@@ -14,15 +16,20 @@ def predict(data_dir:str, classes_file:str, batch_size:int, model:keras.models.M
 
     Returns: numpy array of predictions [[classification_int, probability]]
     '''
-    dataset = construct_dataset.get_data(link=data_dir, classes_file=classes_file, batch_size=None)
-    predictions = None
-    file_info = walk(data_dir)
-    filenames = filter(filter_imgs, list(file_info[2]))
+    for root, dirs, files in walk(data_dir):
+        for folder in dirs:
+            filenames = filter(filter_imgs, files) #files in current directory
+            
+            if(len(filenames)): #if there are image files
+                dataset = construct_dataset.get_data(link=data_dir, classes_file=classes_file, batch_size=None)
+                predictions = None
 
-    try:
-        predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1, use_multiprocessing=True) #try to use multiprocessing if possible
-    except:
-         predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1) #if you cant, dont
+                try:
+                    predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1, use_multiprocessing=True) #try to use multiprocessing if possible
+                except:
+                    predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1) #if you cant, dont
+
+                predictions = map_predictions_to_class(classes)
 
     return predictions
     
@@ -48,14 +55,13 @@ def filter_imgs(filename:str):
     
     return is_img
 
-def map_predictions_to_class(classes_file:str, predictions:np.ndarray):
+def map_predictions_to_class(classes:dict, predictions:np.ndarray):
     '''
     Decodes the integer encoding of each prediction matching the class dict.
     classes_file: file path to classes file
     predictions: numpy array(s) of predictions
     Returns: list(tuple) of decoded predictions. [(class, probability), ...]
     '''
-    classes = construct_dataset.extract_classes(classes_file)
     predictions_decoded = []
     for predict in predictions:
         encoded_animal = np.argmax(predict) #gets the integer corresponding to the highest probability
@@ -75,7 +81,8 @@ def create_csv(img_dir:str, predictions:list[tuple]):
     with open(f'{img_dir}/labeled_data.csv','w') as fp:
         fp.write('File,RelativePath,Animal,Count\n')
         for prediction in predictions:
-            fp.write(f'{img_dir},{},{prediction[0]},{}\n')
+            #fp.write(f'{img_dir},{},{prediction[0]},{}\n')
+            pass
     pass
 
 #this function will create csv file with all the labels
@@ -265,3 +272,8 @@ def runModel(mainDIR):
                                         mainDIR,
                                         relPathImages[i]))
     return(listOfPredictions)
+
+
+for root, dirs, files in walk('tests'):
+    for folder in dirs:
+        print(folder, files)
