@@ -54,8 +54,9 @@ if __name__ == '__main__':
         model, classes = construct_model.load_model(SAVED_MODEL_NAME, SAVED_CLASSES_NAME)
         #Load UI and determine what needs to be done
         retrain_model, img_dir, csv_file = ui.loadUI() #gets a tuple of a (boolean, dir_path, filename)
+        dataset = construct_dataset.get_data(link=img_dir, classes=classes, batch_size=BATCH_SIZE, val_split=VAL_SPLIT, csvfile=csv_file)
         if(retrain_model):
-            construct_model.train_model()
+            construct_model.train_model(model=model, classes=classes, dataset=dataset, steps_per_epoch=STEPS_PER_EPOCH, epochs=NUM_EPOCHS, validation_steps=VALIDATION_STEPS)
         else:
              construct_model.predict()
 

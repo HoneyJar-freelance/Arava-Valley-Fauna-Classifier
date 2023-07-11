@@ -3,7 +3,7 @@ import tensorflow as tf
 from model_builder.construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
 
-def get_data(link:str, classes_file:str, batch_size:int|None, val_split=float|None, csvfile=str|None):
+def get_data(link:str, classes:dict, batch_size:int|None, val_split=float|None, csvfile=str|None):
     '''
     Creates a dataset of images to either be trained on or labeled
     link: directory/dropbox link to data
@@ -23,7 +23,7 @@ def get_data(link:str, classes_file:str, batch_size:int|None, val_split=float|No
         dataset = keras.utils.image_dataset_from_directory(directory=link,
                                                labels=labels,
                                                label_mode='int', #we want integer encoding
-                                               class_names=extract_classes(classes_file),
+                                               class_names=list(classes.keys()),
                                                color_mode='grayscale', #ensures all images are grayscale, as few arent
                                                batch_size=batch_size,
                                                image_size=(224,224,3),
