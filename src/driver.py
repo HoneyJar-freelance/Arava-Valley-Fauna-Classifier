@@ -14,7 +14,7 @@ def dependency_files_exist():
 
 if __name__ == '__main__':
     #creates a debugging tool
-    timestamp = dt.now().strftime('%m-%d-%Y %H-%M-%S')
+    timestamp = dt.now().strftime('%d-%m-%Y %H-%M-%S')
     logging.basicConfig(filename=f'logs\{timestamp}.log', level=logging.INFO, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
     #globals:
     SAVED_MODEL_NAME = 'AVFC_model.h5'
