@@ -3,6 +3,7 @@ import tensorflow as tf
 from model_builder.construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
 import logging
+from os.path import isdir
 
 # Create a logging instance
 logger = logging.getLogger('my_application')
@@ -19,7 +20,7 @@ fh.setFormatter(formatter) # This will set the format to the file handler
 # Add the handler to your logging instance
 logger.addHandler(fh)
 
-def get_data(link:str, classes:dict, batch_size:int|None, val_split=float|None, csvfile=str|None):
+def get_data(link:str, batch_size, val_split, csvfile):
     '''
     Creates a dataset of images to either be trained on or labeled
     link: directory/dropbox link to data
@@ -28,6 +29,10 @@ def get_data(link:str, classes:dict, batch_size:int|None, val_split=float|None, 
     val_split: percentage of dataset to be saved for validation
     csvfile: path to csv file with labels
     '''
+
+
+    if(not isdir(link)):
+        return None
 
     #prune any corrupted images to avoid any issues
     iv.detect_unopenable(link)
@@ -54,14 +59,15 @@ def get_data(link:str, classes:dict, batch_size:int|None, val_split=float|None, 
         logger.exception(e)
         return 0
 
-def preprocess(dataset:tf.data.Dataset|list[tf.data.Dataset]):
+def preprocess(dataset):
     '''
-    Takes in a Dataset object, normalizes the images, and changes the color mode to RGB.
+    Takes in a Dataset object | list[Dataset], normalizes the images, and changes the color mode to RGB.
     Returns: Modified Dataset object
     '''
-    if(type(dataset) == list): #we passed in both a training and validation subset, so process both
+    if(isinstance(dataset, list)): #we passed in both a training and validation subset, so process both
+        logger.debug('dataset confirmed to be list')
         dataset = [preprocess(dataset[0]), preprocess(dataset[1])] #both = [Dataset, Dataset]
-        return dataset if (dataset[0] and dataset[1]) is not None else 0
+        return dataset if (dataset[0] is not None and dataset[1] is not None) else 0
     try:
         dataset = dataset.map(lambda x: tf.image.grayscale_to_rgb(x/255)) #divide by 255 to normalize, then rgb the images
         return dataset
@@ -70,9 +76,13 @@ def preprocess(dataset:tf.data.Dataset|list[tf.data.Dataset]):
         return None
     except TypeError as e:
         logger.exception(e)
+        logger.exception(dataset)
         return None
     except IOError as e:
         logger.exception(e)
+        return None
+    except:
+        logger.exception('UNKNOWN EXCEPTION THROWN')
         return None
 
 def visualize_data(): #TODO: #14 implement this code
