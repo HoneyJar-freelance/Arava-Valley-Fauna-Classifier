@@ -2,6 +2,7 @@ from model_builder import construct_dataset
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
+from os import walk
 
 def predict(data_dir:str, classes_file:str, batch_size:int, model:keras.models.Model):
     '''
@@ -15,12 +16,37 @@ def predict(data_dir:str, classes_file:str, batch_size:int, model:keras.models.M
     '''
     dataset = construct_dataset.get_data(link=data_dir, classes_file=classes_file, batch_size=None)
     predictions = None
+    file_info = walk(data_dir)
+    filenames = filter(filter_imgs, list(file_info[2]))
+
     try:
         predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1, use_multiprocessing=True) #try to use multiprocessing if possible
     except:
          predictions = model.predict(x=dataset, batch_size=batch_size,verbose=1) #if you cant, dont
 
     return predictions
+    
+
+def filter_imgs(filename:str):
+    filename = filename.lower()
+    is_img = False
+
+    if('.jpg' in filename):
+        is_img = True
+
+    elif('.jpeg' in filename):
+        is_img = True
+        
+    elif('.png' in filename):
+        is_img = True
+
+    elif('.bmp' in filename):
+        is_img = True
+
+    elif('.gif' in filename):
+        is_img = True
+    
+    return is_img
 
 def map_predictions_to_class(classes_file:str, predictions:np.ndarray):
     '''

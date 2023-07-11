@@ -58,12 +58,10 @@ if __name__ == '__main__':
 
         #we need to retrain model.
         if(retrain_model):
-            #update classes if we need to
-            classes = construct_model.get_new_classes(csv_file, classes)
+            classes = construct_model.get_new_classes(csv_file, classes) #update classes if we need to
             hist = construct_model.train_model(model=model, classes=classes, dataset=dataset, steps_per_epoch=STEPS_PER_EPOCH, epochs=NUM_EPOCHS, validation_steps=VALIDATION_STEPS)
-            construct_model.visualize_performance(hist)
-        else:
-             
+            construct_model.visualize_performance(hist) #For developer's sake.
+        else: #we are making predictions
              construct_model.predict()
 
     except:
