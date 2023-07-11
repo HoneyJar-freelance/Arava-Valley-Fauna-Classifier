@@ -53,7 +53,7 @@ def extract_classes(location):
         return 0
 
 
-def get_new_classes(csvfile, current_classes=dict|None):
+def get_new_classes(csvfile, current_classes):
     '''
     Extracts potential new classes from a csv file
     csvfile: filepath to csv file with images and labels
@@ -125,12 +125,12 @@ def load_model(model_name, classes_file):
     '''
     return (models.load_model(model_name), extract_classes(classes_file))
 
-def train_model(model:models.Model, classes:dict, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, validation_steps:int|None):
+def train_model(model:models.Model, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, batch_size:int, validation_steps:int|None):
     es1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience = 3) #stops training the network if validation loss doesn't improve after 3 epochs
-    
     hist = model.fit(x = dataset[0],                        #the training data
                      steps_per_epoch = steps_per_epoch,     #None defaults to the number of batches
                      epochs = epochs,                       #performed best in experimentation
+                     batch_size=batch_size,                 #memory allocation issues
                      callbacks = es1,                       #Tells the model to monitor es1; in this case, monitor val_loss with patience of 3
                      validation_data = dataset[1],          #the validation data
                      validation_steps = validation_steps,   #None defaults to the number of batches

@@ -18,7 +18,7 @@ def loadGUI():
             [sg.Button("Retrain Model")]]
     
     # Create the window with a title
-    window = sg.Window(title = f"MIQPC23 {VERSION}: Home", layout = layout, margins = WIN_DIMENSIONS)
+    window = sg.Window(title = f"AVFC {VERSION}: Home", layout = layout, margins = WIN_DIMENSIONS)
 
     # Create an event loop
     retrain_model = None  #None: we clicked [X]; True: we clicked "Retrain System"; False: we clicked "Generate Predictions"
@@ -54,7 +54,7 @@ def get_img_dir():
             [sg.Button("CANCEL")]]
 
     #Create the window
-    window = sg.Window(f"MIQPC23 {VERSION}: Select a directory", layout)
+    window = sg.Window(f"AVFC {VERSION}: Select a directory", layout)
 
     #Create an event loop
     goBack = False     #did we click cancel?
@@ -89,7 +89,7 @@ def get_csv_file():
             [sg.Button("CANCEL")]]
     
     #Create the window
-    window = sg.Window(f"MIQPC23 {VERSION}: CSV Selection", layout)
+    window = sg.Window(f"AVFC {VERSION}: CSV Selection", layout)
 
     #Create an event loop
     goBack = False
@@ -103,7 +103,7 @@ def get_csv_file():
             goBack = True
             break
         elif event == "Browse Files":
-            csv_file = fd.askopenfilename(filetypes=(('.csv')))
+            csv_file = fd.askopenfilename(filetypes=[('CSV files', '*.csv')])
             break
     window.close()
     if(goBack):
@@ -123,7 +123,7 @@ def load_dependency_not_found_prompt():
               [sg.Button("Train new model")],
               [sg.Button("Exit")]]
     
-    window = sg.Window(f"MIQPC23 {VERSION}: ModelNotFoundError", layout) #TODO: move this process to an exception handler
+    window = sg.Window(f"AVFC {VERSION}: ModelNotFoundError", layout) #TODO: move this process to an exception handler
     
     #Create an event loop
     while True:
@@ -136,7 +136,8 @@ def load_dependency_not_found_prompt():
             break
         elif event == "Train new model":
             #Dont call other functions, as they will return to loadGUI
-            train_files = (fd.askdirectory(), fd.askopenfilename(filetypes=(('.csv'))))
+            train_files = (get_img_dir(), get_csv_file())
+            break
     window.close()
 
     return train_files
@@ -149,7 +150,7 @@ def give_error(msg:str):
               [sg.Text(msg)],
               [sg.Button("Exit")]]
     
-    window = sg.Window(f"MIQPC23 {VERSION}: ERROR", layout) #TODO: move this process to an exception handler
+    window = sg.Window(f"AVFC {VERSION}: ERROR", layout) #TODO: move this process to an exception handler
     
     #Create an event loop
     while True:

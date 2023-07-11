@@ -1,27 +1,6 @@
-import UI as ui
+import user_interface.UI as ui
 from model_builder import construct_model, construct_dataset
-import src.jsonReading as jr
 from os.path import isfile
-from tensorflow import keras
-
-CUTOFF = 0.3
-
-choiceTuple = ui.loadUI() #gets a tuple of both the directory of interest, and a value (None, 0, 1) determining what to do
-if(choiceTuple[1] != ""):
-    match choiceTuple[0]:
-        case 0:
-            predictions = cnn.runModel(choiceTuple[1])
-            count = jr.getCount(choiceTuple[1])
-            cnn.makeCSV(choiceTuple[1], predictions, count, CUTOFF)
-        case 1:
-            print("currently not enabled. Sorry!")
-            for i in range(700):
-                beans = True
-
-            #cnn.retrain(choiceTuple[1])
-        case _:
-            print('no choice made- everything is all good. closing application!')
-
 
 def dependency_files_exist():
     '''
@@ -69,7 +48,10 @@ if __name__ == '__main__':
         proceed = ui.load_dependency_not_found_prompt()
         if(proceed):
             img_dir, csv_file = proceed
-            classes = construct_model.get_new_classes(csv_file)
+            classes = construct_model.get_new_classes(csv_file, None)
+            print('Classes extracted...')
             model = construct_model.construct(DENSE_ACTIVATION_0, DENSE_ACTIVATION_1, OPTIMIZER, len(classes))
-    
-            construct_model.train_model()
+            print('Model assembled...')
+            dataset = construct_dataset.get_data(link=img_dir,classes=classes,batch_size=BATCH_SIZE,val_split=VAL_SPLIT, csvfile=csv_file)
+            print('Training and validation datasets obtained. Beginning training...\n==============================\n')
+            construct_model.train_model(model=model,epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, dataset=dataset,steps_per_epoch=STEPS_PER_EPOCH, validation_steps=VALIDATION_STEPS)
