@@ -10,11 +10,6 @@ import tensorflow as tf
 class ConstructDatasetTesting(unittest.TestCase):
     def test_get_data_non_valid_link(self):
         self.assertFalse(construct_dataset.get_data('apples',None,None))
-    
-    '''def test_get_data_valid_directory_training(self):
-        directory = 'tests/testing_data/'
-        datset = construct_dataset.get_data()
-        self.assertIs()'''
 
     def test_preprocess_empty(self):
         self.assertFalse(construct_dataset.preprocess(None))

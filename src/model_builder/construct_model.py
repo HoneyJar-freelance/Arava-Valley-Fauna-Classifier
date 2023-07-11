@@ -111,9 +111,12 @@ def get_labels(csvfile): #TODO: #10 add exception handling for if csvfile isnt a
    csvfile: filepath to csv file with images and labels
    Returns: list of labels (duplicates included)
    '''
-   csvfile =  pd.read_csv(csvfile)
-   new_classes = csvfile.loc[:,'Animal'].to_list()
-   return new_classes
+   try: #csvfile might be None
+    csvfile =  pd.read_csv(csvfile)
+    new_classes = csvfile.loc[:,'Animal'].to_list()
+    return new_classes
+   except:
+       return None
 
 def load_model(model_name, classes_file):
     '''
