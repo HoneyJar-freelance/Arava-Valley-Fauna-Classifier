@@ -5,21 +5,6 @@ from ReissLib.PickyPixels import image_verification as iv
 import logging
 from os.path import isdir
 
-# Create a logging instance
-logger = logging.getLogger('my_application')
-logger.setLevel(logging.INFO) # you can set this to be DEBUG, INFO, ERROR
-
-# Assign a file-handler to that instance
-fh = logging.FileHandler("file_dir.log")
-fh.setLevel(logging.INFO) # again, you can set this differently
-
-# Format your logs (optional)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter) # This will set the format to the file handler
-
-# Add the handler to your logging instance
-logger.addHandler(fh)
-
 def get_data(link:str, batch_size, val_split, csvfile):
     '''
     Creates a dataset of images to either be trained on or labeled
@@ -32,15 +17,19 @@ def get_data(link:str, batch_size, val_split, csvfile):
 
 
     if(not isdir(link)):
+        logging.warn(f'directory provided is not a valid directory. Value given:{link}. Returning 0')
         return None
 
     #prune any corrupted images to avoid any issues
+    logging.debug('attempting to prune corrupted images')
     iv.detect_unopenable(link) #TODO: #18 bug report: labels are not removed with its respective image
 
     labels = None
     if(csvfile is not None): #then we are generating predictions
+        logging.info('Attempting to get labels from csv file')
         labels = get_labels(csvfile)
     try:
+        logging.debug('Trying to construct a dataset')
         dataset = keras.utils.image_dataset_from_directory(directory=link,
                                                 labels=labels,
                                                 label_mode='int', #we want integer encoding
@@ -51,12 +40,17 @@ def get_data(link:str, batch_size, val_split, csvfile):
                                                 seed= 19121954, #arbitrarily chosen. RIP Alan Turing
                                                 validation_split=val_split, #split only if we are training
                                                 subset='both')
+        logging.info(f'Dataset constructed: {dataset}')
+        logging.debug('attempting to call preprocess and dataset')
         dataset = preprocess(dataset) #Need to convert all images to RGB for vgg16 weights. Also normalizes data
     except ValueError as e:
-        logger.exception(e)
+        logging.exception(e)
         return 0
     except TypeError as e:
-        logger.exception(e)
+        logging.exception(e)
+        return 0
+    except:
+        logging.exception('Unknown exception thrown.')
         return 0
 
 def preprocess(dataset):
@@ -64,25 +58,28 @@ def preprocess(dataset):
     Takes in a Dataset object | list[Dataset], normalizes the images, and changes the color mode to RGB.
     Returns: Modified Dataset object
     '''
+    logging.info(f'Preprocessing dataset:{dataset}')
     if(isinstance(dataset, list)): #we passed in both a training and validation subset, so process both
-        logger.debug('dataset confirmed to be list')
+        logging.info(f'dataset provided is a list, starting recursive call')
         dataset = [preprocess(dataset[0]), preprocess(dataset[1])] #both = [Dataset, Dataset]
+        logging.info(f'dataset post-preprocessing: {dataset}')
         return dataset if (dataset[0] is not None and dataset[1] is not None) else 0
     try:
+        logging.debug('Trying to apply map function to the dataset.')
         dataset = dataset.map(lambda x: tf.image.grayscale_to_rgb(x/255)) #divide by 255 to normalize, then rgb the images
+        logging.info(f'Dataset successfully mapped. dataset: {dataset}')
         return dataset
     except ValueError as e:
-        logger.exception(e)
+        logging.exception(msg=f'{e} -- dataset: {dataset}')
         return None
     except TypeError as e:
-        logger.exception(e)
-        logger.exception(dataset)
+        logging.exception(msg=f'{e} -- dataset: {dataset}')
         return None
     except IOError as e:
-        logger.exception(e)
+        logging.exception(msg=f'{e} -- dataset: {dataset}')
         return None
     except:
-        logger.exception('UNKNOWN EXCEPTION THROWN')
+        logging.exception(msg=f'Unknown exception thrown. -- dataset: {dataset}')
         return None
 
 def visualize_data(): #TODO: #14 implement this code
