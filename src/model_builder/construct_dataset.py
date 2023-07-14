@@ -15,14 +15,16 @@ def get_data(link:str, batch_size, val_split, csvfile):
     csvfile: path to csv file with labels
     '''
 
-
+    logging.info('get_data() called.')
     if(not isdir(link)):
         logging.warn(f'directory provided is not a valid directory. Value given:{link}. Returning 0')
+        print('Warning: provided directory is not valid')
         return None
 
     #prune any corrupted images to avoid any issues
     logging.debug('attempting to prune corrupted images')
-    iv.detect_unopenable(link) #TODO: #18 bug report: labels are not removed with its respective image
+    print('Pruning corrupted images...')
+    #iv.detect_unopenable(link) #TODO: #18 bug report: labels are not removed with its respective image BUG: breaks code
 
     labels = None
     if(csvfile is not None): #then we are generating predictions
@@ -30,6 +32,7 @@ def get_data(link:str, batch_size, val_split, csvfile):
         labels = get_labels(csvfile)
     try:
         logging.debug('Trying to construct a dataset')
+        print('Constructing dataset...')
         dataset = keras.utils.image_dataset_from_directory(directory=link,
                                                 labels=labels,
                                                 label_mode='int', #we want integer encoding
@@ -58,6 +61,7 @@ def preprocess(dataset):
     Takes in a Dataset object | list[Dataset], normalizes the images, and changes the color mode to RGB.
     Returns: Modified Dataset object
     '''
+    logging.info('preprocess() called.')
     logging.info(f'Preprocessing dataset:{dataset}')
     if(isinstance(dataset, list)): #we passed in both a training and validation subset, so process both
         logging.info(f'dataset provided is a list, starting recursive call')
@@ -70,7 +74,7 @@ def preprocess(dataset):
         Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32) Tensor("args_1:0", shape=(None,), dtype=int32)
         Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32) Tensor("args_1:0", shape=(None,), dtype=int32)
         '''
-        dataset[0] = dataset[0].map(lambda x: tf.image.grayscale_to_rgb(x)/255) #divide by 255 to normalize, then rgb the images
+        dataset = dataset.element_spec.map(lambda x: tf.image.grayscale_to_rgb(x)/255)
         logging.info(f'Dataset successfully mapped. dataset: {dataset}')
         return dataset
     except ValueError as e:
