@@ -159,7 +159,7 @@ def load_model(model_name, classes_file):
     logging.info('load_model() called.')
     return (models.load_model(model_name), extract_classes(classes_file))
 
-def train_model(model:models.Model, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, batch_size:int, validation_steps:int|None):
+def train_model(model:models.Model, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, batch_size:int, validation_steps:int|None, model_name:str):
     '''
     Trains a model on a given dataset with specified hyperparameters.
 
@@ -187,7 +187,7 @@ def train_model(model:models.Model, dataset:tf.data.Dataset, steps_per_epoch:int
                         validation_steps = validation_steps,   #None defaults to the number of batches
                         verbose = 1)                           #1 shows progress bar. Helps gauge how much is done
         
-        save_model()
+        save_model(model, f'model_files\{model_name}')
         return hist
     except:
         logging.exception('CRITICAL!!! MODEL WAS UNABLE TO BE TRAINED: UNKNOWN EXCPETION: RETURNING 0')

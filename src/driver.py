@@ -4,33 +4,7 @@ from os.path import isfile
 import logging
 from datetime import datetime as dt
 
-def dependency_files_exist():
-    '''
-    Checks to see if the model's .h5 exists and if the classes file exists
-    Returns: Boolean True or False if both files exist
-    '''
-    return isfile(SAVED_MODEL_NAME) and isfile(SAVED_CLASSES_NAME)
-
-
-if __name__ == '__main__':
-    #creates a debugging tool
-    timestamp = dt.now().strftime('%d-%m-%Y %H-%M-%S')
-    logging.basicConfig(filename=f'logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
-    #globals:
-    SAVED_MODEL_NAME = 'AVFC_model.h5'
-    SAVED_CLASSES_NAME = 'classes.json'
-
-    #hyperparameters
-    BATCH_SIZE = 32
-    NUM_EPOCHS = 15
-    VAL_SPLIT = 0.3
-    STEPS_PER_EPOCH = None
-    VALIDATION_STEPS = None
-    OPTIMIZER = 'adagrad'
-    DENSE_UNITS = 1024
-    DENSE_ACTIVATION_0 = 'selu'
-    DENSE_ACTIVATION_1 = 'relu'
-
+def main():
     #attempt to load the model
     model = None
     classes = None
@@ -76,4 +50,27 @@ if __name__ == '__main__':
             else:
                 logging.debug('Beginning training...')
                 print('Training and validation datasets obtained. Beginning training...\n==============================\n')
-                construct_model.train_model(model=model,epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, dataset=dataset,steps_per_epoch=STEPS_PER_EPOCH, validation_steps=VALIDATION_STEPS)
+                construct_model.train_model(model=model,epochs=NUM_EPOCHS, batch_size=BATCH_SIZE, dataset=dataset,steps_per_epoch=STEPS_PER_EPOCH, validation_steps=VALIDATION_STEPS, model_name=SAVED_MODEL_NAME)
+
+
+if __name__ == '__main__':
+    #creates a debugging tool
+    timestamp = dt.now().strftime('%d-%m-%Y %H-%M-%S')
+    logging.basicConfig(filename=f'logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
+    
+    #globals:
+    SAVED_MODEL_NAME = 'AVFC_model.h5'
+    SAVED_CLASSES_NAME = 'classes.json'
+
+    #hyperparameters
+    BATCH_SIZE = 32
+    NUM_EPOCHS = 15
+    VAL_SPLIT = 0.3
+    STEPS_PER_EPOCH = 10
+    VALIDATION_STEPS = 10
+    OPTIMIZER = 'adagrad'
+    DENSE_UNITS = 1024
+    DENSE_ACTIVATION_0 = 'selu'
+    DENSE_ACTIVATION_1 = 'relu'
+
+    main()
