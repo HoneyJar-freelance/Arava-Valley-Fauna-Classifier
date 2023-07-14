@@ -45,6 +45,7 @@ def get_data(link:str, batch_size, val_split, csvfile):
                                                 subset='both')
         logging.info(f'Dataset constructed: {dataset}')
         logging.debug('attempting to call preprocess and dataset')
+        
         dataset = preprocess(dataset) #Need to convert all images to RGB for vgg16 weights. Also normalizes data
     except ValueError as e:
         logging.exception(e)
@@ -75,7 +76,7 @@ def preprocess(dataset):
         Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32) Tensor("args_1:0", shape=(None,), dtype=int32)
         '''
         #convert to rgb images, and normalize dataset.
-        dataset.map(lambda x, y: tf.image.grayscale_to_rgb(x)/255) #x = images, y = labels.
+        dataset.map(lambda image, label: rgb_and_normalize(image, label))
         logging.info(f'Dataset successfully mapped. dataset: {dataset}')
         return dataset
     except ValueError as e:
@@ -93,3 +94,9 @@ def preprocess(dataset):
 
 def visualize_data(): #TODO: #14 implement this code
     pass
+
+def rgb_and_normalize(image, label):
+    '''
+    link in discord for credits
+    '''
+    return tf.cast(tf.image.grayscale_to_rgb(image), tf.float32)/255, label
