@@ -21,7 +21,7 @@ def main():
         #we need to retrain model.
         if(retrain_model):
             logging.debug('Attempting to retrain the model')
-            classes = construct_model.get_new_classes(csv_file, classes) #update classes if we need to
+            classes = construct_model.get_new_classes(csv_file, classes, SAVED_CLASSES_NAME) #update classes if we need to
             logging.info(f'Classes constructed. classes: {classes}')
             logging.debug('Attempting to train model. Here we go...')
             hist = construct_model.train_model(model=model, dataset=dataset, steps_per_epoch=STEPS_PER_EPOCH, epochs=NUM_EPOCHS, validation_steps=VALIDATION_STEPS)
@@ -39,7 +39,7 @@ def main():
             img_dir, csv_file = proceed
             logging.info(f'User chose to proceed. Given values -> img_dir: {img_dir}  csv_file: {csv_file}')
             logging.debug('Attempting to get classes')
-            classes = construct_model.get_new_classes(csv_file, None)
+            classes = construct_model.get_new_classes(csv_file, None, f'model_files\{SAVED_CLASSES_NAME}')
             print('Classes extracted...')
             model = construct_model.construct(DENSE_ACTIVATION_0, DENSE_ACTIVATION_1, OPTIMIZER, len(classes))
             print('Model assembled...')

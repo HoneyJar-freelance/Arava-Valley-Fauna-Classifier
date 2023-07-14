@@ -66,7 +66,7 @@ def extract_classes(location):
         return 0
 
 
-def get_new_classes(csvfile, current_classes):
+def get_new_classes(csvfile, current_classes, class_file):
     '''
     Extracts potential new classes from a csv file
     csvfile: filepath to csv file with images and labels
@@ -80,6 +80,7 @@ def get_new_classes(csvfile, current_classes):
         logging.debug('current_classes is not empty... prepping to add to it if necessary.')
         classes = current_classes
     logging.debug(f'classes: {"not empty" if classes else "empty"}')
+    did_we_update = len(classes) #starting length
     next_entry = len(classes) #len indexes starting at 1, not 0. Thus, next_entry = last value + 1
     logging.debug(f'class dict next_entry:{next_entry}')
     for label in get_labels(csvfile):
@@ -88,6 +89,8 @@ def get_new_classes(csvfile, current_classes):
             classes[label] = next_entry #add it to the dictionary with the corresponding int encoding
             next_entry += 1
     
+    if(did_we_update != next_entry): #Then we added 1+ classes
+        save_classes(classes, f'model_files\{class_file}')
     return classes
 
 def save_classes(classes, location):
