@@ -66,7 +66,11 @@ def preprocess(dataset):
         return dataset if (dataset[0] is not None and dataset[1] is not None) else 0
     try:
         logging.debug('Trying to apply map function to the dataset.')
-        dataset = dataset.map(lambda x: tf.image.grayscale_to_rgb(x)) #divide by 255 to normalize, then rgb the images
+        ''' shape of each BatchDataset instance
+        Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32) Tensor("args_1:0", shape=(None,), dtype=int32)
+        Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32) Tensor("args_1:0", shape=(None,), dtype=int32)
+        '''
+        dataset[0] = dataset[0].map(lambda x: tf.image.grayscale_to_rgb(x)/255) #divide by 255 to normalize, then rgb the images
         logging.info(f'Dataset successfully mapped. dataset: {dataset}')
         return dataset
     except ValueError as e:
