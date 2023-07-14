@@ -76,7 +76,7 @@ def preprocess(dataset):
         Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32) Tensor("args_1:0", shape=(None,), dtype=int32)
         '''
         #convert to rgb images, and normalize dataset.
-        dataset.map(lambda image, label: rgb_and_normalize(image, label))
+        dataset = dataset.map(rgb_and_normalize)
         logging.info(f'Dataset successfully mapped. dataset: {dataset}')
         return dataset
     except ValueError as e:
@@ -97,6 +97,13 @@ def visualize_data(): #TODO: #14 implement this code
 
 def rgb_and_normalize(image, label):
     '''
-    link in discord for credits
+    Converts grayscale images to RGB, and normalizes the pixels. Used on tf.data.Dataset images.
+
+    Args:
+    image: Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32)
+    label: Tensor("args_1:0", shape=(None,), dtype=int32)
+
+    Returns: <MapDataset element_spec=(TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
     '''
-    return tf.cast(tf.image.grayscale_to_rgb(image), tf.float32)/255, label
+    logging.info('rgb_and_normalize() called.')
+    return tf.image.grayscale_to_rgb(image)/255, label
