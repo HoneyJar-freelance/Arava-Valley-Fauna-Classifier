@@ -162,6 +162,8 @@ def load_model(model_name, classes_file):
 def train_model(model:models.Model, dataset:tf.data.Dataset, steps_per_epoch:int|None, epochs:int, batch_size:int, validation_steps:int|None):
     '''
     Trains a model on a given dataset with specified hyperparameters.
+
+    Args:
     model: a tf.keras.models.Model
     dataset: a list[tf.data.Dataset] of training and validation data
     steps_per_epoch: int referring to how many gradient updates per epoch to do

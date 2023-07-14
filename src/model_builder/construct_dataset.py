@@ -46,7 +46,8 @@ def get_data(link:str, batch_size, val_split, csvfile):
         logging.info(f'Dataset constructed: {dataset}')
         logging.debug('attempting to call preprocess and dataset')
         
-        dataset = preprocess(dataset) #Need to convert all images to RGB for vgg16 weights. Also normalizes data
+        return preprocess(dataset) #Need to convert all images to RGB for vgg16 weights. Also normalizes data
+    
     except ValueError as e:
         logging.exception(e)
         return 0

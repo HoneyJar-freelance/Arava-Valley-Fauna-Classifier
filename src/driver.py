@@ -70,7 +70,8 @@ if __name__ == '__main__':
             model = construct_model.construct(DENSE_ACTIVATION_0, DENSE_ACTIVATION_1, OPTIMIZER, len(classes))
             print('Model assembled...')
             dataset = construct_dataset.get_data(link=img_dir,batch_size=BATCH_SIZE,val_split=VAL_SPLIT, csvfile=csv_file)
-            if(dataset is None or dataset == 0):
+            if(not dataset):
+                logging.debug(f'error occured. dataset value: {dataset}')
                 logging.error('Unknown issue occured. Dataset was not created properly. Terminating...')
             else:
                 logging.debug('Beginning training...')
