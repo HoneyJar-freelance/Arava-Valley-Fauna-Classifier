@@ -33,16 +33,17 @@ def get_data(link:str, batch_size, val_split, csvfile):
     try:
         logging.debug('Trying to construct a dataset')
         print('Constructing dataset...')
-        dataset = keras.utils.image_dataset_from_directory(directory=link,
-                                                labels=labels,
-                                                label_mode='int', #we want integer encoding
-                                                color_mode='grayscale', #ensures all images are grayscale, as few arent
-                                                batch_size=batch_size,
-                                                image_size=(224,224),
-                                                shuffle=(True if labels else False), #if we are training, we want to shuffle
-                                                seed= 19121954, #arbitrarily chosen. RIP Alan Turing
-                                                validation_split=val_split, #split only if we are training
-                                                subset='both')
+        dataset = keras.utils.image_dataset_from_directory(
+                                                        directory=link,
+                                                        labels=labels,
+                                                        label_mode='int', #we want integer encoding
+                                                        color_mode='grayscale', #ensures all images are grayscale, as few arent
+                                                        batch_size=batch_size,
+                                                        image_size=(224,224),
+                                                        shuffle=(True if labels else False), #if we are training, we want to shuffle
+                                                        seed= 19121954, #arbitrarily chosen. RIP Alan Turing
+                                                        validation_split=val_split, #split only if we are training
+                                                        subset='both')
         logging.info(f'Dataset constructed: {dataset}')
         logging.debug('attempting to call preprocess and dataset')
         
