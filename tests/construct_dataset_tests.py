@@ -49,6 +49,6 @@ if __name__ == '__main__':
     timestamp = dt.now().strftime('%d-%m-%Y %H-%M-%S')
     logging.basicConfig(filename=f'tests\\test logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
     
-    unittest.main(verbosity=1)
+    unittest.main(verbosity=1) 
 
     
