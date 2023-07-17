@@ -5,6 +5,8 @@ from ReissLib.PickyPixels import image_verification as iv
 import logging
 from os.path import isdir
 
+#BUG: dataset is not constructed if folder with no subfolders is selected, even if images exist. This is causing many complications
+
 def get_data(link:str, batch_size, val_split, csvfile):
     '''
     Creates a dataset of images to either be trained on or labeled
@@ -43,7 +45,7 @@ def get_data(link:str, batch_size, val_split, csvfile):
                                                         shuffle=(True if labels else False), #if we are training, we want to shuffle
                                                         seed= 19121954, #arbitrarily chosen. RIP Alan Turing
                                                         validation_split=val_split, #split only if we are training
-                                                        subset=('both' if val_split else None))
+                                                        subset=('both' if val_split else None)) #specify subset if we split data
         logging.info(f'Dataset constructed: {dataset}')
         logging.debug('attempting to call preprocess and dataset')
         
