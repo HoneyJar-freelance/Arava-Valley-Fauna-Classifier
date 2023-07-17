@@ -1,11 +1,12 @@
 from tensorflow import keras
 import tensorflow as tf
+import tensorflow_datasets as tfds
 from model_builder.construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
 import logging
 from os.path import isdir
 
-#BUG: dataset is not constructed if folder with no subfolders is selected, even if images exist. This is causing many complications
+#FIXME: dataset is not constructed if folder with no subfolders is selected, even if images exist. This is causing many complications
 
 def get_data(link:str, batch_size, val_split, csvfile):
     '''
@@ -30,11 +31,13 @@ def get_data(link:str, batch_size, val_split, csvfile):
 
     labels = None
     if(csvfile is not None): #then we are generating predictions
-        logging.info('Attempting to get labels from csv file')
+        logging.debug('Attempting to get labels from csv file')
         labels = get_labels(csvfile)
+        logging.debug('Success' if labels else 'Failure!!!!!!!!!!!!!!!!!!!!!!!')
     try:
         logging.debug('Trying to construct a dataset')
         print('Constructing dataset...')
+        
         dataset = keras.utils.image_dataset_from_directory(
                                                         directory=link,
                                                         labels=labels,
@@ -46,6 +49,7 @@ def get_data(link:str, batch_size, val_split, csvfile):
                                                         seed= 19121954, #arbitrarily chosen. RIP Alan Turing
                                                         validation_split=val_split, #split only if we are training
                                                         subset=('both' if val_split else None)) #specify subset if we split data
+
         logging.info(f'Dataset constructed: {dataset}')
         logging.debug('attempting to call preprocess and dataset')
         
@@ -82,6 +86,7 @@ def preprocess(dataset):
         #convert to rgb images, and normalize dataset.
         dataset = dataset.map(rgb_and_normalize)
         logging.info(f'Dataset successfully mapped. dataset: {dataset}')
+        dataset = modify_classes(dataset) #TODO: implement function call
         return dataset
     except ValueError as e:
         logging.exception(msg=f'{e} -- dataset: {dataset}')
@@ -125,3 +130,17 @@ def rgb_and_normalize(image):
     '''
     logging.info('rgb_and_normalize() called.')
     return tf.image.grayscale_to_rgb(image)/255
+
+def modify_classes(ds):
+    '''
+    Fixes the classes of the dataset.
+
+    Args:
+    ds: Tensorflow Dataset instance
+
+    Returns:
+    ds: Tensorflow Dataset instance
+    '''
+    logging.info('modify_classes() called.')
+
+    ds.
