@@ -1,10 +1,11 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras.src.utils.image_utils import get_interpolation
+from keras.src.utils.dataset_utils import get_training_or_validation_split
 from construct_model import get_labels, extract_classes
 import logging
 from os import walk
-from time import sleep
+from numpy import random
 
 def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_split = None):
     '''
@@ -54,15 +55,25 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
     path_ds = tf.data.Dataset.from_tensor_slices(file_paths) #dataset of file_paths
     path_ds = path_ds.flat_map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
 
+
     label_ds = tf.data.Dataset.from_tensor_slices(labels)
     label_ds = label_ds.map(lambda label: tf.one_hot(classes[label], len(classes))) #Required step by Tensorflow
     #TODO: #21 add support for multi-label classification (line 34, construct_dataset_new.py)
 
-    train_ds, val_ds = prepare_datasets(path_ds, label_ds)
+    train_ds, val_ds = prepare_datasets(path_ds, label_ds, val_split, batch_size)
 
-def prepare_datasets():
+def prepare_datasets(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_split:float, batch_size:int) -> list[tf.data.Dataset]:
+    
+    #handle exceptions
+    if(not batch_size):
+        raise ValueError(f'Invalid value for batch_dataset. Should be int > 0, given {batch_size}')
+    
+    if(val_split): #Then we are training, thus shuffle data + split data
+        train_imgs, train_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'training')
+        val_imgs, val_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'validation')
 
-    pass
+        seed = random(1e-6)
+        path_ds.shuffle(buffer_size= batch_size*8, seed=seed)
 
 def load_image(path) -> tf.Tensor:
     '''
