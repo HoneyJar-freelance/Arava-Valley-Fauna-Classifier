@@ -5,6 +5,7 @@ import logging
 sys.path.append('src')
 from model_builder import construct_dataset, construct_model
 from tensorflow import keras
+import keras
 import tensorflow as tf
 
 class ConstructDatasetTesting(unittest.TestCase):
@@ -23,6 +24,7 @@ class ConstructDatasetTesting(unittest.TestCase):
     def test_preprocess_valid_dataset(self):
         logging.info('=================== RUNNING TEST test_preprocess_valid_dataset ===================')
         ds = keras.utils.image_dataset_from_directory('tests\\testing_data', labels=None, batch_size=8, color_mode='grayscale')
+        logging.debug(f'element spec: {ds.element_spec}')
         self.assertTrue(construct_dataset.preprocess(ds))
     
     def test_preprocess_valid_dataset_verify_color_change(self):

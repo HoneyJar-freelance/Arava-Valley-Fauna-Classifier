@@ -1,6 +1,5 @@
-from tensorflow import keras
 import tensorflow as tf
-import tensorflow_datasets as tfds
+from tensorflow import keras
 from model_builder.construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
 import logging
@@ -37,7 +36,6 @@ def get_data(link:str, batch_size, val_split, csvfile):
     try:
         logging.debug('Trying to construct a dataset')
         print('Constructing dataset...')
-        
         dataset = keras.utils.image_dataset_from_directory(
                                                         directory=link,
                                                         labels=labels,
@@ -142,5 +140,3 @@ def modify_classes(ds):
     ds: Tensorflow Dataset instance
     '''
     logging.info('modify_classes() called.')
-
-    ds.
