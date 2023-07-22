@@ -1,17 +1,19 @@
 import tensorflow as tf
 from tensorflow import keras
-from model_builder.construct_model import get_labels, extract_classes
+from construct_model import get_labels, extract_classes
 from ReissLib.PickyPixels import image_verification as iv
 import logging
 from os.path import isdir
+from time import sleep
 
 #FIXME: dataset is not constructed if folder with no subfolders is selected, even if images exist. This is causing many complications
+classes_dict = {} #FIXME: Find way to avoid global here
 
-def get_data(link:str, batch_size, val_split, csvfile):
+def get_data(link:str, classes:dict, batch_size, val_split, csvfile):
     '''
     Creates a dataset of images to either be trained on or labeled
     link: directory/dropbox link to data
-    classes_file: path to the classes file
+    classes: dict of classes
     batch_size: batching for the data
     val_split: percentage of dataset to be saved for validation
     csvfile: path to csv file with labels
@@ -33,6 +35,9 @@ def get_data(link:str, batch_size, val_split, csvfile):
         logging.debug('Attempting to get labels from csv file')
         labels = get_labels(csvfile)
         logging.debug('Success' if labels else 'Failure!!!!!!!!!!!!!!!!!!!!!!!')
+
+    global classes_dict
+    classes_dict = classes
     try:
         logging.debug('Trying to construct a dataset')
         print('Constructing dataset...')
@@ -50,7 +55,6 @@ def get_data(link:str, batch_size, val_split, csvfile):
 
         logging.info(f'Dataset constructed: {dataset}')
         logging.debug('attempting to call preprocess and dataset')
-        
         return preprocess(dataset) #Need to convert all images to RGB for vgg16 weights. Also normalizes data
     
     except ValueError as e:
@@ -83,8 +87,8 @@ def preprocess(dataset):
         '''
         #convert to rgb images, and normalize dataset.
         dataset = dataset.map(rgb_and_normalize)
-        logging.info(f'Dataset successfully mapped. dataset: {dataset}')
-        dataset = modify_classes(dataset) #TODO: implement function call
+        logging.debug(f'Dataset successfully mapped. dataset: {dataset}')
+        logging.debug(f'First batch of Dataset: {iter(dataset)[0]}')
         return dataset
     except ValueError as e:
         logging.exception(msg=f'{e} -- dataset: {dataset}')
@@ -102,7 +106,7 @@ def preprocess(dataset):
 def visualize_data(): #TODO: #14 implement this code
     pass
 
-def rgb_and_normalize(image, label):
+def rgb_and_normalize(image, label): #Overload TODO: Add overload handling
     '''
     Converts grayscale images to RGB, and normalizes the pixels. Used on tf.data.Dataset images.
 
@@ -113,30 +117,8 @@ def rgb_and_normalize(image, label):
     Returns: <MapDataset element_spec=(TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
     '''
     logging.info('rgb_and_normalize() called.')
-    return tf.image.grayscale_to_rgb(image)/255, label
+    print(iter(label))
+    sleep(5)
+    return tf.image.grayscale_to_rgb(image)/255, tf.one_hot(classes_dict[label], len(classes_dict))
 
-#Overload TODO: Add overload decorator
-def rgb_and_normalize(image):
-    '''
-    Converts grayscale images to RGB, and normalizes the pixels. Used on tf.data.Dataset images.
-
-    Args:
-    image: Tensor("args_0:0", shape=(None, 224, 224, 1), dtype=float32)
-    label: Tensor("args_1:0", shape=(None,), dtype=int32)
-
-    Returns: <MapDataset element_spec=(TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name=None), TensorSpec(shape=(None,), dtype=tf.int32, name=None))>
-    '''
-    logging.info('rgb_and_normalize() called.')
-    return tf.image.grayscale_to_rgb(image)/255
-
-def modify_classes(ds):
-    '''
-    Fixes the classes of the dataset.
-
-    Args:
-    ds: Tensorflow Dataset instance
-
-    Returns:
-    ds: Tensorflow Dataset instance
-    '''
-    logging.info('modify_classes() called.')
+get_data("D:\Datasets\Fashion MNIST\\training (Delete)", {'class0':0,'class1':1,'class2':2}, 32, 0.3, "D:\Datasets\Fashion MNIST\\bs.csv")
