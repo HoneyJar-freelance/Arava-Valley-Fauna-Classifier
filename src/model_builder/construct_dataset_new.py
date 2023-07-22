@@ -58,13 +58,6 @@ def create_dataset(path:str, csvfile:str, classes:dict):
 def prepare_datasets():
     pass
 
-def rgb_and_normalize():
-    pass
-
-def one_hot_encode_labels():
-    pass
-
-
 def load_image(path) -> tf.Tensor:
     '''
     Modified from keras.src.utils.image_dataset.load_image
