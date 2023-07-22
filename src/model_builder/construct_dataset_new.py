@@ -7,6 +7,25 @@ from os import walk
 from time import sleep
 
 def create_dataset(path:str, csvfile:str, classes:dict):
+    '''
+    Creates datasets for running a CNN model on.
+
+    Args:
+        path: filepath to directory with images.
+        csvfile: path to csv file with labels of respective images.
+        classes: dict of class names and their integer encoding.
+    
+    Rules:
+        - csvfile must have the images and labels in the EXACT same order as the file paths. Default: alphabetical order.
+        - Files in path must be valid image formats. Valid image formats are as follows:
+            - jpg
+            - png
+            - gif (only first frame will be used)
+            - bmp
+    
+    Returns:
+        list[tf.data.Dataset, tf.data.Dataset] if csvfile is specified, else tf.data.Dataset.
+    '''
     file_paths = []
     for root, dirs, files in walk(path):
         for file in files:
@@ -45,8 +64,17 @@ def rgb_and_normalize():
 def one_hot_encode_labels():
     pass
 
-#Modified from tf.keras.utils image_dataset.py
-def load_image(path):
+
+def load_image(path) -> tf.Tensor:
+    '''
+    Modified from keras.src.utils.image_dataset.load_image
+    Loads an image from a file path and applies a series of transformations.
+
+    Args:
+        path: file path to image
+    
+    Returns: float tf.Tensor
+    '''
     img = tf.io.read_file(path) #read the file
     img = tf.image.decode_image(img, channels=1, expand_animations=False) #grayscale it
     img = tf.image.grayscale_to_rgb(img) #Back to rgb
