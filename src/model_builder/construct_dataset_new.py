@@ -6,14 +6,16 @@ import logging
 from os import walk
 from time import sleep
 
-def create_dataset(path:str, csvfile:str, classes:dict):
+def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_split = None):
     '''
-    Creates datasets for running a CNN model on.
+    Creates datasets for use in a CNN model.
 
     Args:
         path: filepath to directory with images.
         csvfile: path to csv file with labels of respective images.
         classes: dict of class names and their integer encoding.
+        batch_size: int that determines how many images are in 1 batch.
+        val_split: float|None determining if the data should be split.
     
     Rules:
         - csvfile must have the images and labels in the EXACT same order as the file paths. Default: alphabetical order.
@@ -22,6 +24,7 @@ def create_dataset(path:str, csvfile:str, classes:dict):
             - png
             - gif (only first frame will be used)
             - bmp
+        - If val_split is specified, csvfile must also be specified.
     
     Returns:
         list[tf.data.Dataset, tf.data.Dataset] if csvfile is specified, else tf.data.Dataset.
@@ -43,8 +46,10 @@ def create_dataset(path:str, csvfile:str, classes:dict):
     if(len(file_paths) == 0):
         raise ValueError('No valid files were found for dataset creation')
     
-    if(labels is None):
-        raise ValueError("Labels were not constructed.")
+    if(labels is None and (val_split is None or val_split == 0)):
+        raise ValueError('Both csvfile and val_split must be specified if either is specified.'
+                         f'csvfile file given: {csvfile}'
+                         f'val_split given: {val_split}')
 
     path_ds = tf.data.Dataset.from_tensor_slices(file_paths) #dataset of file_paths
     path_ds = path_ds.flat_map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
@@ -56,6 +61,7 @@ def create_dataset(path:str, csvfile:str, classes:dict):
     train_ds, val_ds = prepare_datasets(path_ds, label_ds)
 
 def prepare_datasets():
+
     pass
 
 def load_image(path) -> tf.Tensor:
