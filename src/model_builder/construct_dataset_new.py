@@ -94,6 +94,11 @@ def associate_labels_with_data(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset
     if(bool(label_ds) != bool(val_split)):
         raise ValueError('Invalid arguments for label_ds and val_split. Both must be present or absent.'
                          f'label_ds: {label_ds}     val_split: {val_split}')
+    if(len(path_ds) != len(label_ds)):
+        raise ValueError('Length mismatch on labels and file_paths:'
+                         f'#labels: {len(label_ds)}'
+                         f'#files : {len(path_ds)}')
+
     
     #determine if we are training or predicting
     if(val_split): #Then we are training, thus shuffle data + split data
@@ -137,3 +142,9 @@ def load_image(path) -> tf.Tensor:
     img = tf.image.resize(img, (224,224), method=get_interpolation('bilinear')) #Resize for transfer learning
     img.set_shape((224, 224, 3))
     return img
+
+'''
+Offline Documentation Stuff:
+TODO: get_training_or_validation_split does not take in a dataset- it takes in a list. Refactoring required.
+
+'''
