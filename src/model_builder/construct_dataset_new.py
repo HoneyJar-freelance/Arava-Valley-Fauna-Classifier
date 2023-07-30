@@ -65,9 +65,9 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
     label_ds = label_ds.map(lambda label: tf.one_hot(classes[label], len(classes))) #Required step by Tensorflow
     #TODO: #21 add support for multi-label classification (line 34, construct_dataset_new.py)
 
-    train_ds, val_ds = prepare_datasets(path_ds, label_ds, val_split, batch_size)
+    train_ds, val_ds = associate_labels_with_data(path_ds, label_ds, val_split, batch_size)
 
-def prepare_datasets(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_split:float, batch_size:int) -> list[tf.data.Dataset]:
+def associate_labels_with_data(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_split:float, batch_size:int) -> list[tf.data.Dataset]:
     '''
     Creates a dataset(s) used by the program for image classification.
 
@@ -85,7 +85,7 @@ def prepare_datasets(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_spli
     Returns:
         list[tf.data.Dataset] if val_split is non-zero, else a singular tf.data.Dataset. The dataset is combined from path_ds and labels_ds.
     '''
-    #TODO: rename function for clarity
+
     #handle exceptions
     if(not path_ds):
         raise ValueError('You must specify a dataset object for path_ds. None/Invalid given.')
@@ -95,9 +95,11 @@ def prepare_datasets(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_spli
         raise ValueError('Invalid arguments for label_ds and val_split. Both must be present or absent.'
                          f'label_ds: {label_ds}     val_split: {val_split}')
     
+    #determine if we are training or predicting
     if(val_split): #Then we are training, thus shuffle data + split data
         if(val_split < 0 or val_split >= 1):
             raise ValueError(f'Invalid val_split given. Should be in range [0, 1). Given: {val_split}')
+        
         train_imgs, train_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'training')
         val_imgs, val_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'validation')
 
@@ -116,7 +118,7 @@ def prepare_datasets(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_spli
         return [train_ds, val_ds]
     
     else:
-        return [tf.data.Dataset.from_tensor_slices((path_ds, label_ds))]
+        return tf.data.Dataset.from_tensor_slices((path_ds, label_ds))
 
 def load_image(path) -> tf.Tensor:
     '''

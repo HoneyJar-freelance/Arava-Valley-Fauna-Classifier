@@ -20,109 +20,109 @@ class ConstructDatasetTesting(unittest.TestCase):
         logging.info('test_load_image finished.')
         #Assuming the image is correctly grayscaled and normalized, this should appear clearly
     
-    def test_prepare_datasets_invalid_batch_value_None(self):
-        logging.info('test_prepare_datasets_invalid_batch_value_None called.')
+    def test_associate_labels_with_data_invalid_batch_value_None(self):
+        logging.info('test_associate_labels_with_data_invalid_batch_value_None called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
         logging.debug('test_ds_fp created.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_l created.')
         try:
-            construct_dataset_new.prepare_datasets(test_ds_fp, test_ds_l, 0.3, None)
+            construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0.3, None)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        logging.info('test_prepare_datasets_invalid_batch_value_None finished.')
+        logging.info('test_associate_labels_with_data_invalid_batch_value_None finished.')
     
-    def test_prepare_datasets_invalid_batch_value_0(self):
-        logging.info('test_prepare_datasets_invalid_batch_value_0 called.')
+    def test_associate_labels_with_data_invalid_batch_value_0(self):
+        logging.info('test_associate_labels_with_data_invalid_batch_value_0 called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
         logging.debug('test_ds_fp created.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_l created.')
         try:
-            construct_dataset_new.prepare_datasets(test_ds_fp, test_ds_l, 0.3, None)
+            construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0.3, None)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        logging.info('test_prepare_datasets_invalid_batch_value_0 finished.')
+        logging.info('test_associate_labels_with_data_invalid_batch_value_0 finished.')
 
-    def test_prepare_datasets_invalid_no_val_split(self):
-        logging.info('test_prepare_datasets_invalid_no_val_split called.')
+    def test_associate_labels_with_data_invalid_no_val_split(self):
+        logging.info('test_associate_labels_with_data_invalid_no_val_split called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
         logging.debug('test_ds_fp created.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_l created.')
         
         try:
-            construct_dataset_new.prepare_datasets(test_ds_fp, test_ds_l, None, 32)
+            construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, None, 32)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        logging.info('test_prepare_datasets_invalid_no_val_split finished.')
+        logging.info('test_associate_labels_with_data_invalid_no_val_split finished.')
     
-    def test_prepare_datasets_invalid_no_val_split_0(self):
-        logging.info('test_prepare_datasets_invalid_no_val_split_0 called.')
+    def test_associate_labels_with_data_invalid_no_val_split_0(self):
+        logging.info('test_associate_labels_with_data_invalid_no_val_split_0 called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
         logging.debug('test_ds_fp created.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_l created.')
         
         try:
-            construct_dataset_new.prepare_datasets(test_ds_fp, test_ds_l, 0, 32)
+            construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0, 32)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        logging.info('test_prepare_datasets_invalid_no_val_split_0 finished.')
+        logging.info('test_associate_labels_with_data_invalid_no_val_split_0 finished.')
     
-    def test_prepare_dataset_invalid_no_label(self):
-        logging.info('test_prepare_datasets_invalid_no_label called.')
+    def test_associate_labels_with_data_invalid_no_label(self):
+        logging.info('test_associate_labels_with_data_invalid_no_label called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
         logging.debug('test_ds_fp created.')
         
         try:
-            construct_dataset_new.prepare_datasets(test_ds_fp, None, 0.5, 32)
+            construct_dataset_new.associate_labels_with_data(test_ds_fp, None, 0.5, 32)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        logging.info('test_prepare_datasets_invalid_no_label finished.')
+        logging.info('test_associate_labels_with_data_invalid_no_label finished.')
     
-    def test_prepare_dataset_invalid_no_fpdataset(self):
-        logging.info('test_prepare_datasets_invalid_no_label called.')
+    def test_associate_labels_with_data_invalid_no_fpdataset(self):
+        logging.info('test_associate_labels_with_data_invalid_no_label called.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_fp created.')
         
         try:
-            construct_dataset_new.prepare_datasets(None, test_ds_l, 0.5, 32)
+            construct_dataset_new.associate_labels_with_data(None, test_ds_l, 0.5, 32)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-        logging.info('test_prepare_datasets_invalid_no_label finished.')
+        logging.info('test_associate_labels_with_data_invalid_no_label finished.')
     
-    def test_prepare_dataset_valid_all(self):
-        logging.info('test_prepare_dataset_valid_all called.')
+    def test_associate_labels_with_data_valid_all(self):
+        logging.info('test_associate_labels_with_data_valid_all called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
         logging.debug('test_ds_fp created.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_l created.')
         
         try:
-            construct_dataset_new.prepare_datasets(test_ds_fp, test_ds_l, 0.5, 32)
+            construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0.5, 32)
             self.assertTrue(True)
         except ValueError:
             self.assertTrue(False)
-        logging.info('test_prepare_dataset_valid_all finished.')
+        logging.info('test_associate_labels_with_data_valid_all finished.')
     
 
 if __name__ == '__main__':
