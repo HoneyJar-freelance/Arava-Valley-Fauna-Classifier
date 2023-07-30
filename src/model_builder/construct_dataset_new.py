@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.src.utils.image_utils import get_interpolation
 from keras.src.utils.dataset_utils import get_training_or_validation_split
-from construct_model import get_labels, extract_classes
+from model_builder.construct_model import get_labels, extract_classes
 import logging
 from os import walk
 from numpy import random
@@ -65,8 +65,13 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
 def prepare_datasets(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_split:float, batch_size:int) -> list[tf.data.Dataset]:
     
     #handle exceptions
+    if(not path_ds):
+        raise ValueError('You must specify a dataset object for path_ds. None/Invalid given.')
     if(not batch_size):
         raise ValueError(f'Invalid value for batch_dataset. Should be int > 0, given {batch_size}')
+    if(bool(label_ds) != bool(val_split)):
+        raise ValueError('Invalid arguments for label_ds and val_split. Both must be present or absent.'
+                         f'label_ds: {label_ds}     val_split: {val_split}')
     
     if(val_split): #Then we are training, thus shuffle data + split data
         train_imgs, train_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'training')
