@@ -62,8 +62,6 @@ class ConstructDatasetTesting(unittest.TestCase):
             plt.imshow(i)
             plt.show()
 
-
-    
     def test_associate_labels_with_data_no_path_ds(self):
         logging.info('test_associate_labels_with_data_no_path_ds called.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
@@ -189,20 +187,22 @@ class ConstructDatasetTesting(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-    #pass up to here
-    def test_associate_labels_with_data_all_valid_single(self):
-        logging.info('test_associate_labels_with_data_valid_all called.')
+
+    def test_associate_labels_with_data_all_valid_no_split(self):
+        logging.info('test_associate_labels_with_data_valid_single called.')
         ds = None
         try:
             ds = construct_dataset_new.associate_labels_with_data(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'],
-                                                                   ['0','1'], 
-                                                                   0, 
-                                                                   32)
-        except:
+                                                                   [0,1], 
+                                                                   0.5, 
+                                                                   32,
+                                                                   {'0':0, '1':1})
+        except Exception as Argument:
+            logging.exception("Test failed. What went wrong: ")
             self.assertTrue(False, "Dataset failed to be constructed")
         
-        logging.debug(f'Length ds (should be 1): {len(list(ds))}      Value: {ds}')
-        self.assertTrue(len(list(ds)) == 1)
+        logging.debug(f'bruh: {list(ds)}')
+        self.assertTrue(len(list(ds)) == 2)
     
     def test_associate_labels_with_data_all_valid_split(self):
         logging.info('test_associate_labels_with_data_valid_all called.')
@@ -261,7 +261,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename=f'tests\\test logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
     
     suite = unittest.TestSuite()
-    suite.addTest(ConstructDatasetTesting("test_prep_dataset_predict"))
+    suite.addTest(ConstructDatasetTesting("test_associate_labels_with_data_all_valid_no_split"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 

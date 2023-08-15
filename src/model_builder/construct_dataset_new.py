@@ -102,10 +102,16 @@ def associate_labels_with_data(file_paths:list[str], labels:list[int], val_split
     if(labels): #Then we are training, thus shuffle data + split data
         if(val_split < 0 or val_split >= 1):
             raise ValueError(f'Invalid val_split given. Should be in range [0, 1). Given: {val_split}')
-        
-        train_imgs, train_labels = get_training_or_validation_split(file_paths, labels, val_split, 'training')
-        val_imgs, val_labels = get_training_or_validation_split(file_paths, labels, val_split, 'validation')
+        logging.debug('attempting to split the data...')
+        try:
+            train_imgs, train_labels = get_training_or_validation_split(file_paths, labels, val_split, 'training')
+            val_imgs, val_labels = get_training_or_validation_split(file_paths, labels, val_split, 'validation')
+        except Exception as Arugment:
+            logging.exception('ERROR: FAILED TO SPLIT DATA. MESSAGE: ')
+            return 0
+        logging.debug('Success.')
 
+        logging.debug('Mapping functions to dataset...')
         #creates an formats the training datasets
         train_img_ds, train_labels_ds = prep_dataset(img_ds=tf.data.Dataset.from_tensor_slices(train_imgs), 
                                                      label_ds=tf.data.Dataset.from_tensor_slices(train_labels),
@@ -114,10 +120,16 @@ def associate_labels_with_data(file_paths:list[str], labels:list[int], val_split
         val_img_ds, val_labels_ds = prep_dataset(img_ds=tf.data.Dataset.from_tensor_slices(val_imgs), 
                                                      label_ds=tf.data.Dataset.from_tensor_slices(val_labels),
                                                      classes=classes)
-
+        logging.debug('Success.')
         #combine image datasets with their respective labels
-        train_ds = tf.data.Dataset.from_tensor_slices((train_img_ds, train_labels_ds))
-        val_ds = tf.data.Dataset.from_tensor_slices((val_img_ds, val_labels_ds))
+        logging.debug('Attempting to associate data with its labels')
+        try:
+            train_ds = tf.data.Dataset.from_tensor_slices((train_img_ds, train_labels_ds))
+            val_ds = tf.data.Dataset.from_tensor_slices((val_img_ds, val_labels_ds))
+        except Exception as Arguement:
+            logging.exception('ERROR: FAILED TO COMBINE DATA WITH LABELS. Message: ')
+            return 0
+        logging.debug('Success.')
 
         #shuffle data
         seed = random(1e-6)
@@ -150,7 +162,6 @@ def load_image(path) -> tf.Tensor:
     img.set_shape((224, 224, 3))
     return img
 
-
 def prep_dataset(img_ds:tf.data.Dataset, label_ds:tf.data.Dataset, classes:dict) -> list[tf.data.Dataset]:
     '''
     Maps load_image onto each image file path, and one-hot encodes the label dataset if it exists.
@@ -162,6 +173,7 @@ def prep_dataset(img_ds:tf.data.Dataset, label_ds:tf.data.Dataset, classes:dict)
     Returns:
         list[img_ds, label_ds]
     '''
+    logging.info('prep_dataset called.')
     logging.debug(f'attempting to map the dataset. value before: {img_ds}')
     try:
         img_ds = img_ds.map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
