@@ -145,7 +145,7 @@ class ConstructDatasetTesting(unittest.TestCase):
             self.assertTrue(True)
         else:
             self.assertTrue(False)
-    
+    #pass up to here
     def test_associate_labels_with_data_all_valid_single(self):
         logging.info('test_associate_labels_with_data_valid_all called.')
         test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
@@ -155,9 +155,11 @@ class ConstructDatasetTesting(unittest.TestCase):
         
         try:
             ds = construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0, 32)
+            logging.debug(f'Length ds (should be 1): {len(list(ds))}      Value: {ds}')
+            
             self.assertTrue(len(list(ds)) == 1)
         except:
-            self.assertTrue(False)
+            self.assertTrue(False, "Either the dataset was not constructed, or the test failed. See log file")
     
     def test_associate_labels_with_data_all_valid_split(self):
         logging.info('test_associate_labels_with_data_valid_all called.')
@@ -215,6 +217,11 @@ if __name__ == '__main__':
     timestamp = dt.now().strftime('%d-%m-%Y %H-%M-%S')
     logging.basicConfig(filename=f'tests\\test logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
     
-    unittest.main(verbosity=1) 
+    suite = unittest.TestSuite()
+    suite.addTest(ConstructDatasetTesting("test_associate_labels_with_data_all_valid_single"))
+    runner = unittest.TextTestRunner()
+    runner.run(suite)
+
+    #unittest.main(verbosity=1) 
 
     
