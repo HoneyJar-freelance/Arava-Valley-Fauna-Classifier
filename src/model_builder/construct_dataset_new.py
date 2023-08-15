@@ -41,8 +41,10 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
     labels = None
     if(csvfile is not None): #then we are training
         logging.debug('Attempting to get labels from csv file')
-        labels = get_labels(csvfile)
-        logging.debug('Success' if labels else 'Failure!!!!!!!!!!!!!!!!!!!!!!!')
+        labels = []
+        for label in get_labels(csvfile):
+            labels.append(classes[label]) #int encoding
+        logging.debug('Success' if len(labels) > 0 else 'Failure!!!!!!!!!!!!!!!!!!!!!!!')
     
     if(len(file_paths) == 0):
         raise ValueError('No valid files were found for dataset creation')
@@ -63,13 +65,13 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
     train_ds, val_ds = associate_labels_with_data(file_paths, labels, val_split, batch_size, classes)
     #TODO: return
 
-def associate_labels_with_data(file_paths:list[str], labels:list[str], val_split:float, batch_size:int, classes:dict) -> list[tf.data.Dataset]:
+def associate_labels_with_data(file_paths:list[str], labels:list[int], val_split:float, batch_size:int, classes:dict) -> list[tf.data.Dataset]:
     '''
     Creates a dataset(s) used by the program for image classification.
 
     Args:
         path_ds: tf.data.Dataset that contains a list of file paths with mapped transformations
-        labels_ds: tf.data.Dataset that contains a list of labels corresponding to path_ds
+        labels_ds: tf.data.Dataset that contains a list of labels (int encoded) corresponding to path_ds
         val_split: The validation split (range of [0, 1)) of the data. != 0 if training, = 0 else
         batch_size: The number of images per batch. Excess is not dropped
     
@@ -160,9 +162,21 @@ def prep_dataset(img_ds:tf.data.Dataset, label_ds:tf.data.Dataset, classes:dict)
     Returns:
         list[img_ds, label_ds]
     '''
-    img_ds = img_ds.flat_map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
+    logging.debug(f'attempting to map the dataset. value before: {img_ds}')
+    try:
+        img_ds = img_ds.map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
+        logging.debug(f'Mapped. New value: {img_ds}')
+    except Exception as Argument:
+        logging.exception('ERROR: could not map to img_ds. Message: ')
+        return 0
     if(label_ds is not None):
-        label_ds = label_ds.map(lambda label: tf.one_hot(classes[label], len(classes))) #Required step by Tensorflow
+        logging.debug(f'label_ds provided. Attempting to one-hot encode...')
+        try:
+            label_ds = label_ds.map(lambda label: tf.one_hot(label, len(classes)), num_parallel_calls=tf.data.AUTOTUNE) #Required step by Tensorflow
+            logging.debug(f'Mapped. label_ds value: {label_ds}')
+        except Exception as Argument:
+            logging.exception('ERROR: could not map to label_ds. Message: ')
+            return 0
         return [img_ds, label_ds]
     else:
         return img_ds

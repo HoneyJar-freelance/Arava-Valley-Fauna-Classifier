@@ -20,6 +20,28 @@ class ConstructDatasetTesting(unittest.TestCase):
         logging.info('test_load_image finished.')
         #Assuming the image is correctly grayscaled and normalized, this should appear clearly
     
+    def test_prep_dataset_train(self):
+        logging.info('test_prep_dataset_train called...')
+        fp_ds = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
+        logging.debug(f'fp_ds created: {fp_ds}')
+
+        label_ds = tf.data.Dataset.from_tensor_slices([0,1])
+        logging.debug(f'label_ds created: {label_ds}')
+
+        ds = None
+        try:
+            ds = construct_dataset_new.prep_dataset(fp_ds, label_ds,{'0':0, '1':1})
+            
+        except Exception as Argument:
+            logging.exception('ERROR: Test encountered error. What went wrong: ')
+            self.assertTrue(False)
+        
+        correct_length = len(ds) == 2
+        self.assertTrue((ds and correct_length), f'ds: {ds}  correct length: {correct_length}')
+
+    def test_prep_dataset_predict(self):
+        pass
+    
     def test_associate_labels_with_data_no_path_ds(self):
         logging.info('test_associate_labels_with_data_no_path_ds called.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
@@ -148,18 +170,17 @@ class ConstructDatasetTesting(unittest.TestCase):
     #pass up to here
     def test_associate_labels_with_data_all_valid_single(self):
         logging.info('test_associate_labels_with_data_valid_all called.')
-        test_ds_fp = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
-        logging.debug('test_ds_fp created.')
-        test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
-        logging.debug('test_ds_l created.')
-        
+        ds = None
         try:
-            ds = construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0, 32)
-            logging.debug(f'Length ds (should be 1): {len(list(ds))}      Value: {ds}')
-            
-            self.assertTrue(len(list(ds)) == 1)
+            ds = construct_dataset_new.associate_labels_with_data(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'],
+                                                                   ['0','1'], 
+                                                                   0, 
+                                                                   32)
         except:
-            self.assertTrue(False, "Either the dataset was not constructed, or the test failed. See log file")
+            self.assertTrue(False, "Dataset failed to be constructed")
+        
+        logging.debug(f'Length ds (should be 1): {len(list(ds))}      Value: {ds}')  
+        self.assertTrue(len(list(ds)) == 1)
     
     def test_associate_labels_with_data_all_valid_split(self):
         logging.info('test_associate_labels_with_data_valid_all called.')
@@ -218,7 +239,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename=f'tests\\test logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
     
     suite = unittest.TestSuite()
-    suite.addTest(ConstructDatasetTesting("test_associate_labels_with_data_all_valid_single"))
+    suite.addTest(ConstructDatasetTesting("test_prep_dataset_train"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
