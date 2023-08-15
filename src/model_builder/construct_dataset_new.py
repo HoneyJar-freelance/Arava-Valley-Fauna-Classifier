@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow import keras
 from keras.src.utils.image_utils import get_interpolation
 from keras.src.utils.dataset_utils import get_training_or_validation_split
-from model_builder.construct_model import get_labels, extract_classes
+from model_builder.construct_model import get_labels, extract_classes, get_new_classes
 import logging
 from os import walk
 from numpy import random
@@ -39,7 +39,7 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
                 file_paths.append(root + '\\' + file)
     
     labels = None
-    if(csvfile is not None): #then we are generating predictions
+    if(csvfile is not None): #then we are training
         logging.debug('Attempting to get labels from csv file')
         labels = get_labels(csvfile)
         logging.debug('Success' if labels else 'Failure!!!!!!!!!!!!!!!!!!!!!!!')
@@ -56,18 +56,14 @@ def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_spli
         raise ValueError('Length mismatch on labels and file_paths:'
                          f'#labels: {len(labels)}'
                          f'#files : {len(file_paths)}')
+    
 
-    path_ds = tf.data.Dataset.from_tensor_slices(file_paths) #dataset of file_paths
-    path_ds = path_ds.flat_map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
-
-
-    label_ds = tf.data.Dataset.from_tensor_slices(labels)
-    label_ds = label_ds.map(lambda label: tf.one_hot(classes[label], len(classes))) #Required step by Tensorflow
     #TODO: #21 add support for multi-label classification (line 34, construct_dataset_new.py)
 
-    train_ds, val_ds = associate_labels_with_data(path_ds, label_ds, val_split, batch_size)
+    train_ds, val_ds = associate_labels_with_data(file_paths, labels, val_split, batch_size, classes)
+    #TODO: return
 
-def associate_labels_with_data(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset, val_split:float, batch_size:int) -> list[tf.data.Dataset]:
+def associate_labels_with_data(file_paths:list[str], labels:list[str], val_split:float, batch_size:int, classes:dict) -> list[tf.data.Dataset]:
     '''
     Creates a dataset(s) used by the program for image classification.
 
@@ -87,30 +83,39 @@ def associate_labels_with_data(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset
     '''
 
     #handle exceptions
-    if(not path_ds):
+    if(not file_paths):
         raise ValueError('You must specify a dataset object for path_ds. None/Invalid given.')
     if(not batch_size or batch_size < 1):
         raise ValueError(f'Invalid value for batch_dataset. Should be int > 0, given {batch_size}')
-    if(bool(label_ds) != bool(val_split)):
+    if(bool(labels) != bool(val_split)):
         raise ValueError('Invalid arguments for label_ds and val_split. Both must be present or absent.'
-                         f'label_ds: {label_ds}     val_split: {val_split}')
-    if(len(path_ds) != len(label_ds)):
+                         f'label_ds: {labels}     val_split: {val_split}')
+    if(labels and (len(file_paths) != len(labels))):
         raise ValueError('Length mismatch on labels and file_paths:'
-                         f'#labels: {len(label_ds)}'
-                         f'#files : {len(path_ds)}')
+                         f'#labels: {len(labels)}'
+                         f'#files : {len(file_paths)}')
 
     
     #determine if we are training or predicting
-    if(val_split): #Then we are training, thus shuffle data + split data
+    if(labels): #Then we are training, thus shuffle data + split data
         if(val_split < 0 or val_split >= 1):
             raise ValueError(f'Invalid val_split given. Should be in range [0, 1). Given: {val_split}')
         
-        train_imgs, train_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'training')
-        val_imgs, val_labels = get_training_or_validation_split(path_ds, label_ds, val_split, 'validation')
+        train_imgs, train_labels = get_training_or_validation_split(file_paths, labels, val_split, 'training')
+        val_imgs, val_labels = get_training_or_validation_split(file_paths, labels, val_split, 'validation')
+
+        #creates an formats the training datasets
+        train_img_ds, train_labels_ds = prep_dataset(img_ds=tf.data.Dataset.from_tensor_slices(train_imgs), 
+                                                     label_ds=tf.data.Dataset.from_tensor_slices(train_labels),
+                                                     classes=classes)
+        #creates and formats the validation datasets
+        val_img_ds, val_labels_ds = prep_dataset(img_ds=tf.data.Dataset.from_tensor_slices(val_imgs), 
+                                                     label_ds=tf.data.Dataset.from_tensor_slices(val_labels),
+                                                     classes=classes)
 
         #combine image datasets with their respective labels
-        train_ds = tf.data.Dataset.from_tensor_slices((train_imgs, train_labels))
-        val_ds = tf.data.Dataset.from_tensor_slices((val_imgs, val_labels))
+        train_ds = tf.data.Dataset.from_tensor_slices((train_img_ds, train_labels_ds))
+        val_ds = tf.data.Dataset.from_tensor_slices((val_img_ds, val_labels_ds))
 
         #shuffle data
         seed = random(1e-6)
@@ -122,8 +127,8 @@ def associate_labels_with_data(path_ds:tf.data.Dataset, label_ds:tf.data.Dataset
 
         return [train_ds, val_ds]
     
-    else:
-        return tf.data.Dataset.from_tensor_slices((path_ds, label_ds))
+    else: #then we are generating predictions on the dataset
+        return prep_dataset(img_ds=tf.data.Dataset.from_tensor_slices(file_paths), label_ds=None, classes=classes)
 
 def load_image(path) -> tf.Tensor:
     '''
@@ -143,8 +148,21 @@ def load_image(path) -> tf.Tensor:
     img.set_shape((224, 224, 3))
     return img
 
-'''
-Offline Documentation Stuff:
-TODO: get_training_or_validation_split does not take in a dataset- it takes in a list. Refactoring required.
 
-'''
+def prep_dataset(img_ds:tf.data.Dataset, label_ds:tf.data.Dataset, classes:dict) -> list[tf.data.Dataset]:
+    '''
+    Maps load_image onto each image file path, and one-hot encodes the label dataset if it exists.
+
+    Args:
+        img_ds: tf.data.Dataset containing file paths.
+        label_ds: tf.data.Dataset containing the labels for each image.
+
+    Returns:
+        list[img_ds, label_ds]
+    '''
+    img_ds = img_ds.flat_map(lambda file: load_image(file), num_parallel_calls=tf.data.AUTOTUNE) #allows images to be loaded on runtime, and applies relevant transformations
+    if(label_ds is not None):
+        label_ds = label_ds.map(lambda label: tf.one_hot(classes[label], len(classes))) #Required step by Tensorflow
+        return [img_ds, label_ds]
+    else:
+        return img_ds

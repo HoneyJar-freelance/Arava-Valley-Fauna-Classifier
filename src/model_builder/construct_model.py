@@ -66,7 +66,7 @@ def extract_classes(location):
         return 0
 
 
-def get_new_classes(csvfile, current_classes, class_file):
+def get_new_classes(csvfile, current_classes, class_file) -> dict:
     '''
     Extracts potential new classes from a csv file
     csvfile: filepath to csv file with images and labels
