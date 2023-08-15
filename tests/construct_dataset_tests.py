@@ -37,10 +37,32 @@ class ConstructDatasetTesting(unittest.TestCase):
             self.assertTrue(False)
         
         correct_length = len(ds) == 2
+
+        for i in iter(ds[0]):
+                plt.imshow(i)
+                plt.show()
+        for i in iter(ds[1]):
+            print(i)
         self.assertTrue((ds and correct_length), f'ds: {ds}  correct length: {correct_length}')
 
     def test_prep_dataset_predict(self):
-        pass
+        logging.info('test_prep_dataset_predict called...')
+        fp_ds = tf.data.Dataset.from_tensor_slices(['tests/testing_data/test_0.jpeg', 'tests/testing_data/test_1.JPEG'])
+        logging.debug(f'fp_ds created: {fp_ds}')
+
+        ds = None
+        try:
+            ds = construct_dataset_new.prep_dataset(fp_ds, None,{'0':0, '1':1})
+            
+        except Exception as Argument:
+            logging.exception('ERROR: Test encountered error. What went wrong: ')
+            self.assertTrue(False)
+        
+        for i in iter(ds):
+            plt.imshow(i)
+            plt.show()
+
+
     
     def test_associate_labels_with_data_no_path_ds(self):
         logging.info('test_associate_labels_with_data_no_path_ds called.')
@@ -179,7 +201,7 @@ class ConstructDatasetTesting(unittest.TestCase):
         except:
             self.assertTrue(False, "Dataset failed to be constructed")
         
-        logging.debug(f'Length ds (should be 1): {len(list(ds))}      Value: {ds}')  
+        logging.debug(f'Length ds (should be 1): {len(list(ds))}      Value: {ds}')
         self.assertTrue(len(list(ds)) == 1)
     
     def test_associate_labels_with_data_all_valid_split(self):
@@ -239,7 +261,7 @@ if __name__ == '__main__':
     logging.basicConfig(filename=f'tests\\test logs\{timestamp}.log', level=logging.DEBUG, encoding='utf-8', datefmt='%d-%m-%Y %H:%M:%S %p', format='%(asctime)s %(levelname)s | %(message)s')
     
     suite = unittest.TestSuite()
-    suite.addTest(ConstructDatasetTesting("test_prep_dataset_train"))
+    suite.addTest(ConstructDatasetTesting("test_prep_dataset_predict"))
     runner = unittest.TextTestRunner()
     runner.run(suite)
 
