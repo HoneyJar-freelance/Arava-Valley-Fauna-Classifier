@@ -1,11 +1,12 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras.src.utils.image_utils import get_interpolation
+from keras.utils import image_dataset_from_directory
 from keras.src.utils.dataset_utils import get_training_or_validation_split
 from model_builder.construct_model import get_labels, extract_classes, get_new_classes
 import logging
 from os import walk
-from numpy import random
+from numpy.random import randint
 
 def create_dataset(path:str, csvfile:str, classes:dict, batch_size:int, val_split = None):
     '''
@@ -124,15 +125,15 @@ def associate_labels_with_data(file_paths:list[str], labels:list[int], val_split
         #combine image datasets with their respective labels
         logging.debug('Attempting to associate data with its labels')
         try:
-            train_ds = tf.data.Dataset.from_tensor_slices((train_img_ds, train_labels_ds))
-            val_ds = tf.data.Dataset.from_tensor_slices((val_img_ds, val_labels_ds))
+            train_ds = tf.data.Dataset.zip((train_img_ds, train_labels_ds))
+            val_ds = tf.data.Dataset.zip((val_img_ds, val_labels_ds))
         except Exception as Arguement:
             logging.exception('ERROR: FAILED TO COMBINE DATA WITH LABELS. Message: ')
             return 0
         logging.debug('Success.')
 
         #shuffle data
-        seed = random(1e-6)
+        seed = randint(1e6)
         train_ds = train_ds.shuffle(buffer_size= batch_size*8, seed=seed)
         
         #batch datasets

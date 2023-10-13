@@ -210,7 +210,6 @@ class ConstructDatasetTesting(unittest.TestCase):
         logging.debug('test_ds_fp created.')
         test_ds_l = tf.data.Dataset.from_tensor_slices([0,1])
         logging.debug('test_ds_l created.')
-        
         try:
             ds = construct_dataset_new.associate_labels_with_data(test_ds_fp, test_ds_l, 0.4, 32)
             self.assertTrue(len(list(ds)) == 2)
