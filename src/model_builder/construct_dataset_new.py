@@ -1,9 +1,8 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras.src.utils.image_utils import get_interpolation
-from keras.utils import image_dataset_from_directory
 from keras.src.utils.dataset_utils import get_training_or_validation_split
-from model_builder.construct_model import get_labels, extract_classes, get_new_classes
+from model_builder.construct_model import get_labels
 import logging
 from os import walk
 from numpy.random import randint

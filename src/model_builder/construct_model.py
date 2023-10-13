@@ -7,6 +7,8 @@ import pandas as pd
 import tensorflow as tf
 from matplotlib import pyplot as plt
 import logging
+import sys
+sys.path.append("src")
 
 def construct(dense_activation_0, dense_activation_1, optimizer, num_classes):
     '''
@@ -66,7 +68,7 @@ def extract_classes(location):
         return 0
 
 
-def get_new_classes(csvfile, current_classes, class_file) -> dict:
+def get_new_classes(csvfile, current_classes=None, class_file="auto_classes.json") -> dict:
     '''
     Extracts potential new classes from a csv file
     csvfile: filepath to csv file with images and labels
@@ -90,7 +92,7 @@ def get_new_classes(csvfile, current_classes, class_file) -> dict:
             next_entry += 1
     
     if(did_we_update != next_entry): #Then we added 1+ classes
-        save_classes(classes, f'model_files\{class_file}')
+        save_classes(classes, f'src\model_files\{class_file}')
     return classes
 
 def save_classes(classes, location):
@@ -190,7 +192,7 @@ def train_model(model:models.Model, dataset:tf.data.Dataset, steps_per_epoch:int
                         validation_steps = validation_steps,   #None defaults to the number of batches
                         verbose = 1)                           #1 shows progress bar. Helps gauge how much is done
         
-        save_model(model, f'model_files\{model_name}')
+        save_model(model, f'src\model_files\{model_name}')
         return hist
     except:
         logging.exception('CRITICAL!!! MODEL WAS UNABLE TO BE TRAINED: UNKNOWN EXCPETION: RETURNING 0')
